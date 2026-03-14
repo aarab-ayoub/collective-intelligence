@@ -30,6 +30,21 @@ If your dataset currently exists at `IOT/ptb-xl/`, either:
 python phase1/models/train_phase1_cnn.py --data-dir dataset/processed --out-dir results/phase1 --epochs 10
 ```
 
+## PTB-XL MIT-style workflow (recommended)
+
+If you want PTB-XL to behave closer to MIT-BIH-style heartbeat training, use the reorganized Phase 1 notebooks:
+
+1. `notebooks/phase1/01_ptbxl_mit_style_preprocessing.ipynb`
+	- Builds beat-level samples from PTB-XL (single lead, fixed 187 length, per-beat min-max normalization).
+	- Outputs `dataset/processed/ptbxl_mit_style/ptbxl_mit_style_dataset.npz`.
+
+2. `notebooks/phase1/02_ptbxl_mit_style_training.ipynb`
+	- Trains a 1D-CNN on the processed beat dataset.
+	- Default mode is binary (`NORM` vs `ABN`) for more stable performance.
+
+Preprocessing details are documented in:
+- `dataset/processed/ptbxl_mit_style/README.md`
+
 ## Final baseline
 
 The locked final Phase 1 baseline metrics and configuration are documented in `RESULTS.md`.
