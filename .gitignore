@@ -22,9 +22,24 @@ env/
 # Local data artifacts
 dataset/raw/
 dataset/processed/
+dataset/processed_ptbxl_mit_style/
+dataset/processed_beats/
+dataset/processed_alt/
 
 # Training outputs
+results/
 results/phase1/
+notebooks/**/results/
+
+# ML artifacts
+*.pt
+*.pth
+*.ckpt
+*.npz
+*.npy
+
+# Local docs / exports
+projet_iot.pdf
 
 # IDE
 .vscode/
