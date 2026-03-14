@@ -1,119 +1,69 @@
-# Inférence Médicale Embarquée
+# Collective Intelligence — PTB-XL Project Starter
 
-**Module:** Systèmes embarqués et objets connectés — Master Data Science, ENS Martil  
-**Encadrant:** Said Ohamouddou  
-**Date:** 1er mars 2026  
-**Équipe:** Groupes de 3 étudiants
+## Project structure
 
----
+- `dataset/raw/` → raw datasets (PTB-XL)
+- `dataset/processed/` → processed arrays and metadata generated in Phase 0
+- `notebooks/phase0/` → EDA + preprocessing notebook
+- `phase1/models/` → Phase 1 Python training scripts
+- `results/phase0/` → figures/tables from EDA
+- `results/phase1/` → model checkpoints and metrics
 
-## Objectifs
+## Dataset choice
 
-1. Entraîner un modèle deep learning de base sur un dataset médical public.
-2. Appliquer **8 techniques d'optimisation** (quantification + élagage) pour réduire la taille et le coût d'inférence.
-3. Déployer et évaluer les modèles sur **3 machines virtuelles** simulant du matériel de plus en plus contraint.
-4. Combiner les prédictions des 3 VMs en un système d'**intelligence collective**.
-5. Monitorer l'ensemble via une **plateforme IoT (ThingsBoard)** avec télémétrie MQTT.
+You chose **PTB-XL**, which is a strong choice for ECG classification.
 
----
+Expected raw dataset path for this project:
+- `collective-intelligence/dataset/raw/ptb-xl/`
 
-## Structure du dépôt
+If your dataset currently exists at `IOT/ptb-xl/`, either:
+1. copy it into `collective-intelligence/dataset/raw/ptb-xl/`, or
+2. create a symlink named `ptb-xl` inside `collective-intelligence/dataset/raw/`.
 
-```
-projet-embarque/
-├── README.md
-├── environment/              # Infrastructure VM (Docker / Vagrant)
-│   ├── docker-compose.yml
-│   └── check_resources.sh
-├── dataset/                  # Téléchargement & preprocessing
-│   ├── download.sh
-│   └── preprocess.py
-├── baseline/                 # Modèle de base
-│   ├── train.py
-│   └── evaluate.py
-├── optimization/             # 8 techniques d'optimisation
-│   ├── Q1_dynamic_quant/
-│   ├── Q2_static_ptq/
-│   ├── Q3_qat/
-│   ├── Q4_weight_only/
-│   ├── Q5_mixed_precision/
-│   ├── P1_unstructured/
-│   ├── P2_structured/
-│   └── P3_magnitude/
-├── deployment/               # Scripts de déploiement & mesure sur VMs
-│   ├── deploy.py
-│   └── measure.py
-├── collective/               # Orchestrateur & mécanismes de vote
-│   └── orchestrator.py
-├── thingsboard/              # Client MQTT & dashboards
-│   ├── mqtt_client.py
-│   └── dashboards/
-├── results/                  # Tables CSV & figures
-└── report/                   # Rapport final PDF
-```
+## Workflow
 
----
-
-## Environnement virtuel
-
-| VM  | CPU   | RAM    | Profil                    |
-|-----|-------|--------|---------------------------|
-| VM1 | 1 core| 500 MB | Capteur IoT bas de gamme  |
-| VM2 | 2 cores| 1 GB  | Passerelle IoT             |
-| VM3 | 2 cores| 2 GB  | Serveur edge léger         |
-
----
-
-## Techniques d'optimisation
-
-| ID | Technique                       |
-|----|---------------------------------|
-| Q1 | Quantification dynamique        |
-| Q2 | PTQ statique                    |
-| Q3 | Quantification QAT              |
-| Q4 | Quantification poids seulement  |
-| Q5 | Quantification mixte            |
-| P1 | Élagage non structuré           |
-| P2 | Élagage structuré               |
-| P3 | Élagage par magnitude           |
-
----
-
-## Installation
+1. Open `notebooks/phase0/phase0_eda_preprocessing.ipynb`
+2. Run all cells to generate processed files in `dataset/processed/`
+3. Train baseline model:
 
 ```bash
-# 1. Cloner le dépôt
-git clone <repo-url>
-cd projet-embarque
-
-# 2. Créer un environnement virtuel Python
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# 3. Lancer l'infrastructure Docker
-cd environment
-docker-compose up -d
-
-# 4. Télécharger et préparer le dataset
-cd ../dataset
-bash download.sh
-python preprocess.py
-
-# 5. Entraîner le modèle de base
-cd ../baseline
-python train.py
+python phase1/models/train_phase1_cnn.py --data-dir dataset/processed --out-dir results/phase1 --epochs 10
 ```
 
----
+## Final baseline
 
-## Résultats (Phase 3 — Matrice 3×8)
+The locked final Phase 1 baseline metrics and configuration are documented in `RESULTS.md`.
 
-Voir `results/deployment_matrix.csv` après exécution de `deployment/measure.py`.
+### Reproduce final Phase 1 run
 
----
+```bash
+python phase1/models/train_phase1_cnn.py \
+	--data-dir dataset/processed \
+	--out-dir results/phase1 \
+	--seed 42 \
+	--epochs 35 \
+	--batch-size 64 \
+	--lr 9e-4 \
+	--dropout 0.28 \
+	--base-channels 28 \
+	--weight-decay 6e-4 \
+	--label-smoothing 0.03 \
+	--early-stopping-patience 10 \
+	--lr-patience 4 \
+	--lr-factor 0.5 \
+	--min-lr 1e-5 \
+	--min-delta 0.0008
+```
 
-## Monitoring
+### Evaluate on test set only
 
-ThingsBoard Community Edition est déployé via Docker.  
-Le client MQTT (`thingsboard/mqtt_client.py`) publie les métriques après chaque inférence.
+```bash
+python phase1/models/train_phase1_cnn.py \
+	--data-dir dataset/processed \
+	--batch-size 64 \
+	--dropout 0.28 \
+	--base-channels 28 \
+	--label-smoothing 0.03 \
+	--eval-only \
+	--checkpoint results/phase1/best_model.pt
+```

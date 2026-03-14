@@ -1,51 +1,31 @@
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-.Python
-
-# Virtual environments
-venv/
-env/
-.env
-.venv/
-
-# Jupyter
-.ipynb_checkpoints/
-*.ipynb_checkpoints
-
-# Model weights (large binary files)
-*.pt
-*.pth
-*.h5
-*.onnx
-*.tflite
-
-# Dataset (raw & processed — too large for git)
-dataset/raw/
-dataset/processed/
-
-# Results / figures (generated — commit selectively)
-results/*.csv
-results/figures/
-
-# Logs
-*.log
-logs/
-
 # macOS
 .DS_Store
 
-# Docker volumes
-tb_data/
-tb_logs/
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# Editors
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local data artifacts
+dataset/raw/
+dataset/processed/
+
+# Training outputs
+results/phase1/
+
+# IDE
 .vscode/
 .idea/
-
-# Distribution / packaging
-dist/
-build/
-*.egg-info/
