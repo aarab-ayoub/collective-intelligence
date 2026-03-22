@@ -1,0 +1,116 @@
+{
+  "test_accuracy": 0.7364600198464512,
+  "test_macro_f1": 0.4922612566819238,
+  "per_class_f1": {
+    "N": 0.8293244166397009,
+    "S": 0.04040404040404041,
+    "V": 0.7918367346938775,
+    "F": 0.0011527377521613833,
+    "Q": 0.7985883539198386
+  },
+  "model_size_mb": 0.13869094848632812,
+  "avg_inference_time_ms": 0.016261511829474832,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 1.1006871176179864,
+      "val_loss": 1.445968434696177,
+      "val_accuracy": 0.37354163872871127,
+      "val_macro_f1": 0.20205595883802402
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.7721357793941852,
+      "val_loss": 1.2322209604914776,
+      "val_accuracy": 0.6080193107147647,
+      "val_macro_f1": 0.25071424351896443
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.6114428068912472,
+      "val_loss": 1.2301091727229534,
+      "val_accuracy": 0.781681641410755,
+      "val_macro_f1": 0.29307920265030635
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.5389877800664371,
+      "val_loss": 1.2575031236299676,
+      "val_accuracy": 0.7034330159581601,
+      "val_macro_f1": 0.2567581951717309
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.4845701339092857,
+      "val_loss": 1.2912840878370382,
+      "val_accuracy": 0.7064503151401368,
+      "val_macro_f1": 0.2593226419374433
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.44609544823131675,
+      "val_loss": 1.3321342800135776,
+      "val_accuracy": 0.758146707791337,
+      "val_macro_f1": 0.26961808974988705
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.42344678446123085,
+      "val_loss": 1.4262403803663342,
+      "val_accuracy": 0.49074694917527156,
+      "val_macro_f1": 0.22521290367878444
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.39599994278137324,
+      "val_loss": 1.2510964091444072,
+      "val_accuracy": 0.5951455008716642,
+      "val_macro_f1": 0.24193201441426795
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.38147659016061486,
+      "val_loss": 1.5722382531595147,
+      "val_accuracy": 0.7362210004023065,
+      "val_macro_f1": 0.2703455577336786
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.3688363684014638,
+      "val_loss": 1.5403875488129957,
+      "val_accuracy": 0.7524473648920478,
+      "val_macro_f1": 0.2658879083648088
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.3608720274793899,
+      "val_loss": 1.4469746447958736,
+      "val_accuracy": 0.7122837602252917,
+      "val_macro_f1": 0.2602621837356479
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.33477613742496626,
+      "val_loss": 1.335405859380333,
+      "val_accuracy": 0.7600911894863887,
+      "val_macro_f1": 0.26863280370825404
+    },
+    {
+      "epoch": 13,
+      "train_loss": 0.3351659022819704,
+      "val_loss": 1.2622001815676704,
+      "val_accuracy": 0.6760761700415717,
+      "val_macro_f1": 0.2597301673181319
+    }
+  ],
+  "literature_comparison": [
+    {
+      "paper": "Kachuee et al. (2018)",
+      "note": "ECG heartbeat classification baseline reference"
+    },
+    {
+      "paper": "Lightweight ECG-CNN studies (2019-2024)",
+      "note": "Typical strong baselines on MIT-BIH variants"
+    }
+  ]
+}

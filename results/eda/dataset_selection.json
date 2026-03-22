@@ -1,0 +1,9 @@
+{
+  "selected_dataset": "mitbih_database",
+  "path": "/Users/ayoub/work/MS-DS_ML_Projects/IOT/mitbih_database",
+  "score": 35,
+  "justification": "Highest total score across 8 criteria from EDA comparison.",
+  "n_classes": 5,
+  "n_samples": null,
+  "task": "classification"
+}

@@ -1,0 +1,6 @@
+{
+  "dataset": "mitbih_database",
+  "total_score": 20,
+  "n_samples": 109494,
+  "imbalance_ratio": 112.86550435865504
+}

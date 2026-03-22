@@ -1,0 +1,6 @@
+{
+  "dataset": "mit_bih_arrhythmia",
+  "total_score": 19,
+  "n_samples": 48,
+  "imbalance_ratio": 1.0
+}

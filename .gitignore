@@ -1,46 +1,32 @@
-# macOS
-.DS_Store
+# Large files
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
 
-# Python
-__pycache__/
-*.py[cod]
-*.so
-*.egg-info/
-.eggs/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
+# Large data files
+*.csv
+*.parquet
+*.hdf5
+*.h5
 
-# Virtual environments
-.venv/
-venv/
-env/
-
-# Jupyter
-.ipynb_checkpoints/
-
-# Local data artifacts
-dataset/raw/
-dataset/processed/
-dataset/processed_ptbxl_mit_style/
-dataset/processed_beats/
-dataset/processed_alt/
-
-# Training outputs
-results/
-results/phase1/
-notebooks/**/results/
-
-# ML artifacts
-*.pt
+# Model files
+*.pkl
+*.pickle
+*.joblib
 *.pth
-*.ckpt
-*.npz
-*.npy
+*.pt
+*.h5
 
-# Local docs / exports
-projet_iot.pdf
+# Large binary files
+*.bin
+*.exe
+*.dll
 
-# IDE
+# IDE and OS
+.DS_Store
 .vscode/
 .idea/
+__pycache__/
+*.pyc
