@@ -9,7 +9,7 @@ def main():
     results_dir = project_root / "results" / "optimization"
     
     # Baseline metrics
-    baseline_metrics_file = project_root / "results" / "mitbih_csv" / "baseline_cnn_metrics.json"
+    baseline_metrics_file = project_root / "results" / "baseline" / "baseline_cnn_metrics.json"
     if baseline_metrics_file.exists():
         with open(baseline_metrics_file) as f:
             bm = json.load(f)

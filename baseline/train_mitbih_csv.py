@@ -40,10 +40,12 @@ torch.manual_seed(SEED)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT.parent / "mitbih"
-OUT_DIR = PROJECT_ROOT / "results" / "mitbih_csv"
-WEIGHTS_DIR = PROJECT_ROOT / "baseline" / "weights"
+OUT_DIR = PROJECT_ROOT / "results" / "baseline"
+WEIGHTS_DIR = PROJECT_ROOT / "results" / "baseline"
+PLOTS_DIR = PROJECT_ROOT / "results" / "graphs_and_images"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 WEIGHTS_DIR.mkdir(parents=True, exist_ok=True)
+PLOTS_DIR.mkdir(parents=True, exist_ok=True)
 
 LABELS = ["N", "S", "V", "F", "Q"]
 NUM_CLASSES = 5
@@ -81,49 +83,9 @@ print_dist("VAL", y_val)
 print_dist("TEST", y_test)
 
 # ─── Model ────────────────────────────────────────────────────────────────────
-class ECGNet1D(nn.Module):
-    """Compact 1D-CNN for ECG classification. ~55K parameters."""
-    def __init__(self, n_classes=5, input_len=186, dropout=0.3):
-        super().__init__()
-        self.features = nn.Sequential(
-            # Block 1
-            nn.Conv1d(1, 32, kernel_size=7, padding=3),
-            nn.BatchNorm1d(32),
-            nn.ReLU(inplace=True),
-            nn.Conv1d(32, 32, kernel_size=5, padding=2),
-            nn.BatchNorm1d(32),
-            nn.ReLU(inplace=True),
-            nn.MaxPool1d(2),
-            nn.Dropout(0.15),
-
-            # Block 2
-            nn.Conv1d(32, 64, kernel_size=5, padding=2),
-            nn.BatchNorm1d(64),
-            nn.ReLU(inplace=True),
-            nn.Conv1d(64, 64, kernel_size=3, padding=1),
-            nn.BatchNorm1d(64),
-            nn.ReLU(inplace=True),
-            nn.MaxPool1d(2),
-            nn.Dropout(0.15),
-
-            # Block 3
-            nn.Conv1d(64, 128, kernel_size=3, padding=1),
-            nn.BatchNorm1d(128),
-            nn.ReLU(inplace=True),
-            nn.AdaptiveAvgPool1d(1),
-        )
-        self.classifier = nn.Sequential(
-            nn.Dropout(dropout),
-            nn.Linear(128, 64),
-            nn.ReLU(inplace=True),
-            nn.Dropout(dropout * 0.5),
-            nn.Linear(64, n_classes),
-        )
-
-    def forward(self, x):
-        z = self.features(x).squeeze(-1)  # (B, 128)
-        return self.classifier(z)
-
+# Import from the absolute package now that utils is initialized
+sys.path.append(str(PROJECT_ROOT))
+from utils.utils import ECGNet1D
 
 # ─── Training setup ──────────────────────────────────────────────────────────
 # Convert to tensors (add channel dim for Conv1d)
@@ -232,9 +194,9 @@ model.load_state_dict(best_state)
 model.eval()
 
 # Save weights
-weight_path = WEIGHTS_DIR / "baseline_mitbih_csv.pt"
-torch.save(best_state, weight_path)
-print(f"\nSaved model: {weight_path}")
+weight_path = WEIGHTS_DIR / "baseline_best.pt"
+torch.save(model, weight_path)
+print(f"\nSaved full model: {weight_path}")
 
 # Test inference
 test_preds, test_targs = [], []
@@ -334,7 +296,7 @@ for i in range(NUM_CLASSES):
 plt.colorbar(im, ax=axes[2])
 
 plt.tight_layout()
-plot_path = OUT_DIR / "baseline_cnn_plots.png"
+plot_path = PLOTS_DIR / "baseline_cnn_plots.png"
 plt.savefig(plot_path, dpi=150, bbox_inches="tight")
 plt.close()
 print(f"Saved plots: {plot_path}")

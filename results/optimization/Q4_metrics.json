@@ -3,6 +3,6 @@
   "technique": "Weight-only Quantization (FP16)",
   "accuracy": 0.9690754613557464,
   "macro_f1": 0.8553459342177095,
-  "size_mb": 0.13222789764404297,
-  "inference_ms": 0.23331105540833866
+  "size_mb": 0.13839244842529297,
+  "inference_ms": 0.27242216905715266
 }

@@ -5,56 +5,50 @@ import torch
 import torch.nn as nn
 
 # Add parent directory to path to import utils
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-from utils import ECGNet1D, evaluate_model, SEED
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+from utils.utils import ECGNet1D, evaluate_model, SEED
+
+class FP16Wrapper(torch.nn.Module):
+    def __init__(self, model):
+        super().__init__()
+        self.model = model
+        # Convert all Conv1d and Linear weights to float16
+        for name, module in self.model.named_modules():
+            if isinstance(module, (torch.nn.Conv1d, torch.nn.Linear)):
+                module.weight.data = module.weight.data.to(torch.float16)
+                if getattr(module, 'bias', None) is not None:
+                    module.bias.data = module.bias.data.to(torch.float16)
+
+    def forward(self, x):
+        return self.model(x.half()).float()
 
 def main():
     torch.manual_seed(SEED)
     
     project_root = Path(__file__).resolve().parent.parent.parent
-    baseline_weights = project_root / "baseline" / "weights" / "baseline_mitbih_csv.pt"
+    baseline_model_path = project_root / "results" / "baseline" / "baseline_best.pt"
     save_model_path = project_root / "results" / "optimization" / "Q4_model.pt"
     save_metrics_path = project_root / "results" / "optimization" / "Q4_metrics.json"
     
     os.makedirs(save_model_path.parent, exist_ok=True)
     
-    model = ECGNet1D()
-    model.load_state_dict(torch.load(baseline_weights, map_location="cpu"))
+    model = torch.load(baseline_model_path, map_location="cpu", weights_only=False)
     model.eval()
     
-    # Weight-only quantization manually compresses weight tensors from 32-bit floats to 8-bit integers 
-    # and scales them back during inference.
-    # We will use PyTorch's native dynamic quant, which is basically weight-only + activation quantization 
-    # at runtime, BUT we only provide qconfig for weight.
-    
-    # In PyTorch, True Weight-Only quantization isn't natively exposed via torch.quantization without custom backends.
-    # To simulate it properly, we will use float16 conversion natively which halves the size immediately
-    # Weight-only FP16 conversion is standard and highly reliable.
-    
-    model.half() # Converts parameters to float16
-    
-    # However, since some evaluation operations might fail if inputs are float32,
-    # we'll create a wrapper that casts inputs
-    class FP16Wrapper(nn.Module):
-        def __init__(self, fp16_model):
-            super().__init__()
-            self.model = fp16_model
-            
-        def forward(self, x):
-            # Input comes as float32, we cast to float16 for the model
-            return self.model(x.half()).float()
+    model.half()
             
     wrapped_model = FP16Wrapper(model)
     wrapped_model.eval()
-
+    
     print("Weight-only (FP16) applied. Evaluating...")
+    
     evaluate_model(
         wrapped_model, 
         model_name="ECGNet1D_WeightOnly_FP16", 
         technique_id="Q4", 
         technique_name="Weight-only Quantization (FP16)",
         save_path=save_metrics_path,
-        device="cpu", # CPU can execute FP16 instructions
+        device="cpu", # Fallback calculation on cpu to prevent native MPS errors with half types
         save_model_path=save_model_path
     )
 

@@ -106,14 +106,14 @@ def evaluate_model(model, model_name, technique_id, technique_name, save_path=No
     
     # Save model to disk temporarily if path provided to measure exact size
     if save_model_path:
-        state_to_save = sparse_state_dict if sparse_state_dict is not None else (model.state_dict() if hasattr(model, 'state_dict') else model)
+        state_to_save = sparse_state_dict if sparse_state_dict is not None else (model)
         torch.save(state_to_save, save_model_path)
         model_size_bytes = os.path.getsize(save_model_path)
     else:
         # Fallback approximation: serialize to memory
         import io
         buffer = io.BytesIO()
-        state_to_save = sparse_state_dict if sparse_state_dict is not None else (model.state_dict() if hasattr(model, 'state_dict') else model)
+        state_to_save = sparse_state_dict if sparse_state_dict is not None else (model)
         torch.save(state_to_save, buffer)
         model_size_bytes = buffer.getbuffer().nbytes
         

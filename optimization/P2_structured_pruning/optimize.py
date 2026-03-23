@@ -8,8 +8,8 @@ import pandas as pd
 import numpy as np
 
 # Add parent directory to path to import utils
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-from utils import evaluate_model, SEED
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+from utils.utils import evaluate_model, SEED
 
 def get_train_loader(data_dir, batch_size=256):
     train_df = pd.read_csv(Path(data_dir) / "mitbih_train.csv", header=None)
@@ -71,7 +71,7 @@ def main():
     torch.manual_seed(SEED)
     
     project_root = Path(__file__).resolve().parent.parent.parent
-    baseline_weights = project_root / "baseline" / "weights" / "baseline_mitbih_csv.pt"
+    baseline_model_path = project_root / "results" / "baseline" / "baseline_best.pt"
     save_model_path = project_root / "results" / "optimization" / "P2_model.pt"
     save_metrics_path = project_root / "results" / "optimization" / "P2_metrics.json"
     data_dir = project_root.parent / "mitbih"
@@ -79,9 +79,8 @@ def main():
     os.makedirs(save_model_path.parent, exist_ok=True)
     
     # Needs to import the dense model from utils to avoid circular dependency
-    from utils import ECGNet1D
-    model = ECGNet1D()
-    model.load_state_dict(torch.load(baseline_weights, map_location="cpu"))
+    from utils.utils import ECGNet1D
+    model = torch.load(baseline_model_path, map_location="mps" if torch.backends.mps.is_available() else "cpu", weights_only=False)
     
     # 1. Determine importance of filters/channels and keep 70%
     keep_ratio = 0.7
@@ -178,7 +177,10 @@ def main():
     
     # 4. Fine-tune the reconstructed model
     print("Narrow structured model rebuilt successfully. Fine-tuning for 5 epochs...")
+    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+    narrow_model.to(device)
     narrow_model.train()
+    
     train_loader = get_train_loader(data_dir)
     optimizer = torch.optim.Adam(narrow_model.parameters(), lr=1e-4) # Fine-tune LR
     criterion = nn.CrossEntropyLoss()
@@ -186,6 +188,7 @@ def main():
     for epoch in range(5):
         epoch_loss = 0.0
         for bx, by in train_loader:
+            bx, by = bx.to(device), by.to(device)
             optimizer.zero_grad()
             logits = narrow_model(bx)
             loss = criterion(logits, by)
@@ -203,7 +206,7 @@ def main():
         technique_id="P2", 
         technique_name="Structured Pruning (30%)",
         save_path=save_metrics_path,
-        device="cpu",
+        device="mps" if torch.backends.mps.is_available() else "cpu",
         save_model_path=save_model_path
     )
 
