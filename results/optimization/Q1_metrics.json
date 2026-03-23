@@ -1,0 +1,8 @@
+{
+  "id": "Q1",
+  "technique": "Dynamic Quantization",
+  "accuracy": 0.9692124977160607,
+  "macro_f1": 0.8560186316185943,
+  "size_mb": 0.22828960418701172,
+  "inference_ms": 0.46084796386810534
+}

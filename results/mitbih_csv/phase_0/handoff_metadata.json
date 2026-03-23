@@ -1,0 +1,13 @@
+{
+  "phase0_dir": "/Users/ayoub/work/MS-DS_ML_Projects/IOT/collective-intelligence/results/mitbih_csv/phase_0",
+  "n_train_samples": 87554,
+  "n_test_samples": 21892,
+  "n_features": 187,
+  "classes": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-03-23T15:55:33.719499",
+  "dataset_dir": "/Users/ayoub/work/MS-DS_ML_Projects/IOT/mitbih",
+  "phase0_summary": "/Users/ayoub/work/MS-DS_ML_Projects/IOT/collective-intelligence/results/mitbih_csv/phase_0/phase0_summary.json",
+  "phase1_model": "/Users/ayoub/work/MS-DS_ML_Projects/IOT/collective-intelligence/results/mitbih_csv/phase_1/phase1_model.joblib",
+  "phase1_metrics": "/Users/ayoub/work/MS-DS_ML_Projects/IOT/collective-intelligence/results/mitbih_csv/phase_1/phase1_metrics.json",
+  "phase2_model": "/Users/ayoub/work/MS-DS_ML_Projects/IOT/collective-intelligence/results/mitbih_csv/phase_2/phase2_model.joblib",
+  "phase2_metrics": "/Users/ayoub/work/MS-DS_ML_Projects/IOT/collective-intelligence/results/mitbih_csv/phase_2/phase2_metrics.json",
+  "cleanup_manifest": "/Users/ayoub/work/MS-DS_ML_Projects/IOT/collective-intelligence/results/mitbih_csv/cleanup_manifest_20260323_155402.json",
+  "best_phase": "phase2",
+  "selection_rule": "max test_macro_f1 then max test_accuracy",
+  "comparison": [
+    {
+      "phase": "phase2",
+      "model": "RandomForestClassifier(class_weight=balanced_subsample)",
+      "val_macro_f1": 0.8815313571145259,
+      "test_macro_f1": 0.858384977113119,
+      "test_accuracy": 0.9723186552165175
+    },
+    {
+      "phase": "phase1",
+      "model": "LogisticRegression(class_weight=balanced)",
+      "val_macro_f1": 0.4820498044986915,
+      "test_macro_f1": 0.47842412439076104,
+      "test_accuracy": 0.6747213594006943
+    }
+  ]
+}

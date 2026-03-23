@@ -1,0 +1,8 @@
+{
+  "id": "P3",
+  "technique": "Global Magnitude Pruning (40%)",
+  "accuracy": 0.9292892380778367,
+  "macro_f1": 0.7626004411611748,
+  "size_mb": 0.25124645233154297,
+  "inference_ms": 0.44981684711312336
+}

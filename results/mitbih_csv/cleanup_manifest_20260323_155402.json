@@ -1,0 +1,79 @@
+[
+  {
+    "path": "collective",
+    "type": "dir",
+    "timestamp": "2026-03-23T15:54:02.005944",
+    "action": "moved_to_quarantine",
+    "quarantine_path": ".cleanup_quarantine/20260323_155402/collective"
+  },
+  {
+    "path": "deployment",
+    "type": "dir",
+    "timestamp": "2026-03-23T15:54:02.006581",
+    "action": "moved_to_quarantine",
+    "quarantine_path": ".cleanup_quarantine/20260323_155402/deployment"
+  },
+  {
+    "path": "optimization/P1_unstructured_pruning",
+    "type": "dir",
+    "timestamp": "2026-03-23T15:54:02.006786",
+    "action": "moved_to_quarantine",
+    "quarantine_path": ".cleanup_quarantine/20260323_155402/optimization/P1_unstructured_pruning"
+  },
+  {
+    "path": "optimization/P2_structured_pruning",
+    "type": "dir",
+    "timestamp": "2026-03-23T15:54:02.007016",
+    "action": "moved_to_quarantine",
+    "quarantine_path": ".cleanup_quarantine/20260323_155402/optimization/P2_structured_pruning"
+  },
+  {
+    "path": "optimization/P3_magnitude_pruning",
+    "type": "dir",
+    "timestamp": "2026-03-23T15:54:02.007221",
+    "action": "moved_to_quarantine",
+    "quarantine_path": ".cleanup_quarantine/20260323_155402/optimization/P3_magnitude_pruning"
+  },
+  {
+    "path": "optimization/Q1_dynamic_quant",
+    "type": "dir",
+    "timestamp": "2026-03-23T15:54:02.007456",
+    "action": "moved_to_quarantine",
+    "quarantine_path": ".cleanup_quarantine/20260323_155402/optimization/Q1_dynamic_quant"
+  },
+  {
+    "path": "optimization/Q2_static_ptq",
+    "type": "dir",
+    "timestamp": "2026-03-23T15:54:02.007803",
+    "action": "moved_to_quarantine",
+    "quarantine_path": ".cleanup_quarantine/20260323_155402/optimization/Q2_static_ptq"
+  },
+  {
+    "path": "optimization/Q3_qat",
+    "type": "dir",
+    "timestamp": "2026-03-23T15:54:02.008094",
+    "action": "moved_to_quarantine",
+    "quarantine_path": ".cleanup_quarantine/20260323_155402/optimization/Q3_qat"
+  },
+  {
+    "path": "optimization/Q4_weight_only",
+    "type": "dir",
+    "timestamp": "2026-03-23T15:54:02.008306",
+    "action": "moved_to_quarantine",
+    "quarantine_path": ".cleanup_quarantine/20260323_155402/optimization/Q4_weight_only"
+  },
+  {
+    "path": "optimization/Q5_mixed_precision",
+    "type": "dir",
+    "timestamp": "2026-03-23T15:54:02.008441",
+    "action": "moved_to_quarantine",
+    "quarantine_path": ".cleanup_quarantine/20260323_155402/optimization/Q5_mixed_precision"
+  },
+  {
+    "path": "thingsboard",
+    "type": "dir",
+    "timestamp": "2026-03-23T15:54:02.008556",
+    "action": "moved_to_quarantine",
+    "quarantine_path": ".cleanup_quarantine/20260323_155402/thingsboard"
+  }
+]

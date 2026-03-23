@@ -1,0 +1,16 @@
+{
+  "phase1_model": "/Users/ayoub/work/MS-DS_ML_Projects/IOT/collective-intelligence/results/mitbih_csv/phase_1/phase1_model.joblib",
+  "phase1_metrics": "/Users/ayoub/work/MS-DS_ML_Projects/IOT/collective-intelligence/results/mitbih_csv/phase_1/phase1_metrics.json",
+  "split": {
+    "train_samples": 70043,
+    "val_samples": 17511,
+    "test_samples": 21892
+  },
+  "classes": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ]
+}
