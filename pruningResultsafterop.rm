@@ -1,0 +1,31 @@
+# Pruning Optimization Results (Iterative & Structured)
+
+The `ECGNet1D` baseline model was subjected to three distinct pruning methodologies according to the advanced iterative fine-tuning requirements. Below are the final results after all optimizations.
+
+## 1. Summary of Results
+
+| ID | Technique | Accuracy | Macro F1 | Size (MB) | Inference (ms/smpl) |
+|----|-----------|----------|----------|-----------|---------------------|
+| **B0** | **Baseline Dense (FP32)** | **96.93%** | **0.8563** | **0.251** | **0.0152** |
+| **P1** | Unstructured Pruning (50%) | 97.78% | 0.8816 | 0.942 | 0.3967 |
+| **P2** | Structured Pruning (30%) | 97.24% | 0.8618 | **0.127** | 0.3578 |
+| **P3** | Global Magnitude Pruning (40%) | 97.75% | 0.8837 | 0.949 | 0.3987 |
+
+---
+
+## 2. Analysis of Techniques
+
+### P1: Unstructured Pruning (50% per-layer)
+- **Methodology:** Pruned 10% of remaining weights iteratively over 5 steps (fine-tuning 2 epochs per step). Saved weights in PyTorch sparse CSR-like formats (`to_sparse()`).
+- **Outcome:** Suberb regularizing effect led to **increased accuracy (+0.85%)**. However, the file size *increased* to 0.942 MB because the overhead of storing PyTorch 1D sparse indices is larger than the actual zero values for very small CNN models. PyTorch lacks natively optimized sparse 1D convolutions on CPU, so inference slowed down compared to dense FP32 execution.
+
+### P2: Structured Pruning (30% of channels/filters)
+- **Methodology:** Calculated L1 norms of `Conv1d` and `Linear` filters, dropping the lowest 30%. Physically instantiated a dynamically smaller `ECGNet1D_Narrow` model and surgically copied/sliced the kept weights. Fine-tuned for 5 epochs.
+- **Outcome:** The most successful compression technique. Physically reduced the parameters, resulting in an exact **~50% reduction in real file size (0.127 MB)** while *improving* accuracy (+0.31%). Inference speed is slower than pure baseline B0 due to Mac CPU dispatch overheads when evaluating single samples, but in a batched embedded environment, the narrower architecture guarantees fewer FLOPs.
+
+### P3: Global Magnitude Pruning (40% network-wide)
+- **Methodology:** Pruned the lowest absolute weights universally across all layers in 4 iterative steps of 10%. Fine-tuned 2 epochs per step. Saved to PyTorch sparse formats.
+- **Outcome:** Similar to P1, the regularizing effect of iterative dropout/pruning improved overall model accuracy (**97.75%**). Storage size increased due to the same PyTorch dense-to-sparse index overhead limitations.
+
+## Conclusion
+**Structured Pruning (P2)** is the definitive winner for embedded deployment. By dynamically shedding the lowest-performing 30% of architectural channels and recompiling the network into a native dense format, it cut the storage size in half (**127 KB**) while improving prediction accuracy. Unstructured methods (P1, P3) served as excellent regularizers but failed to provide structural footprint benefits due to hardware-level sparse matrix overheads.

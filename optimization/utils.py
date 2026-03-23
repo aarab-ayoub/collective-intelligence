@@ -66,7 +66,7 @@ class ECGNet1D(nn.Module):
         z = self.features(x).squeeze(-1)
         return self.classifier(z)
 
-def evaluate_model(model, model_name, technique_id, technique_name, save_path=None, test_loader=None, device="cpu", save_model_path=None):
+def evaluate_model(model, model_name, technique_id, technique_name, save_path=None, test_loader=None, device="cpu", save_model_path=None, sparse_state_dict=None):
     """
     Evaluates a model (accuracy, F1, size, inference time) and saves metrics to a JSON file.
     Note: For optimized deployment timing, we evaluate strictly on CPU by default.
@@ -106,13 +106,15 @@ def evaluate_model(model, model_name, technique_id, technique_name, save_path=No
     
     # Save model to disk temporarily if path provided to measure exact size
     if save_model_path:
-        torch.save(model.state_dict() if hasattr(model, 'state_dict') else model, save_model_path)
+        state_to_save = sparse_state_dict if sparse_state_dict is not None else (model.state_dict() if hasattr(model, 'state_dict') else model)
+        torch.save(state_to_save, save_model_path)
         model_size_bytes = os.path.getsize(save_model_path)
     else:
         # Fallback approximation: serialize to memory
         import io
         buffer = io.BytesIO()
-        torch.save(model.state_dict() if hasattr(model, 'state_dict') else model, buffer)
+        state_to_save = sparse_state_dict if sparse_state_dict is not None else (model.state_dict() if hasattr(model, 'state_dict') else model)
+        torch.save(state_to_save, buffer)
         model_size_bytes = buffer.getbuffer().nbytes
         
     model_size_mb = model_size_bytes / (1024 * 1024)
