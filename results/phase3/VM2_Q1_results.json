@@ -1,0 +1,11 @@
+{
+  "vm_id": "VM2",
+  "tech_id": "Q1",
+  "tech_name": "Dynamic Quant",
+  "accuracy": 0.9744655581947743,
+  "avg_latency_ms": 20.253141900002447,
+  "std_latency_ms": 34.742676236340735,
+  "avg_cpu_percent": 522.47,
+  "avg_ram_mb": 670.862890625,
+  "model_path": "/app/results/optimization/Q1_model.pt"
+}

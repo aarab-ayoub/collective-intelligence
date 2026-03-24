@@ -1,0 +1,11 @@
+{
+  "vm_id": "VM2",
+  "tech_id": "Q4",
+  "tech_name": "Weight-only FP16",
+  "accuracy": 0.9743285218344601,
+  "avg_latency_ms": 20.51912489996539,
+  "std_latency_ms": 35.3477143354726,
+  "avg_cpu_percent": 630.9100000000001,
+  "avg_ram_mb": 673.48828125,
+  "model_path": "/app/results/optimization/Q4_model.pt"
+}

@@ -1,0 +1,11 @@
+{
+  "vm_id": "VM2",
+  "tech_id": "Q2",
+  "tech_name": "Static PTQ",
+  "accuracy": 0.9747853097021744,
+  "avg_latency_ms": 28.158458400002928,
+  "std_latency_ms": 41.00738652162595,
+  "avg_cpu_percent": 449.21999999999997,
+  "avg_ram_mb": 670.59140625,
+  "model_path": "/app/results/optimization/Q2_model.pt"
+}

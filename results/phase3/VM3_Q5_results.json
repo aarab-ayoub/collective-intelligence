@@ -1,0 +1,11 @@
+{
+  "vm_id": "VM3",
+  "tech_id": "Q5",
+  "tech_name": "Mixed Precision",
+  "accuracy": 0.9743742006212315,
+  "avg_latency_ms": 0.5923126999732631,
+  "std_latency_ms": 0.3717753992273356,
+  "avg_cpu_percent": 1046.3,
+  "avg_ram_mb": 673.33203125,
+  "model_path": "/app/results/optimization/Q5_model.pt"
+}

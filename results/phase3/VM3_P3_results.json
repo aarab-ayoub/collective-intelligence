@@ -1,0 +1,11 @@
+{
+  "vm_id": "VM3",
+  "tech_id": "P3",
+  "tech_name": "Global Magnitude",
+  "accuracy": 0.9821395943723734,
+  "avg_latency_ms": 1.021912499982136,
+  "std_latency_ms": 0.7801605420469288,
+  "avg_cpu_percent": 809.3700000000001,
+  "avg_ram_mb": 678.6953125,
+  "model_path": "/app/results/optimization/P3_model.pt"
+}

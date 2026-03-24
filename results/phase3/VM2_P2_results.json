@@ -1,0 +1,11 @@
+{
+  "vm_id": "VM2",
+  "tech_id": "P2",
+  "tech_name": "Structured Pruning",
+  "accuracy": 0.9772976429746026,
+  "avg_latency_ms": 3.1831664000037563,
+  "std_latency_ms": 8.4032375672505,
+  "avg_cpu_percent": 949.01,
+  "avg_ram_mb": 672.65234375,
+  "model_path": "/app/results/optimization/P2_model.pt"
+}

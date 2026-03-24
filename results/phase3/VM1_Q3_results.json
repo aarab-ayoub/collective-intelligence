@@ -1,0 +1,11 @@
+{
+  "vm_id": "VM1",
+  "tech_id": "Q3",
+  "tech_name": "QAT",
+  "accuracy": 0.9768865338936598,
+  "avg_latency_ms": 149.5420748999095,
+  "std_latency_ms": 120.0298409727736,
+  "avg_cpu_percent": 141.23999999999998,
+  "avg_ram_mb": 670.400390625,
+  "model_path": "/app/results/optimization/Q3_model.pt"
+}
