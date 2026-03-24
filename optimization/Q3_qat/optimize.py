@@ -7,23 +7,15 @@ from torch.utils.data import DataLoader, TensorDataset
 import pandas as pd
 import numpy as np
 
-# Add parent directory to path to import utils
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from utils.utils import ECGNet1D, evaluate_model, SEED
+# Modular Imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.append(str(PROJECT_ROOT))
 
-def main():
-    torch.manual_seed(SEED)
-    torch.backends.quantized.engine = 'qnnpack'
-    
-    project_root = Path(__file__).resolve().parent.parent.parent
-    baseline_model_path = project_root / "results" / "baseline" / "baseline_best.pt"
-    save_model_path = project_root / "results" / "optimization" / "Q3_model.pt"
-    save_metrics_path = project_root / "results" / "optimization" / "Q3_metrics.json"
-    data_dir = project_root.parent / "mitbih"
-    
-    os.makedirs(save_model_path.parent, exist_ok=True)
-    
-class QuantizableClassifier(torch.nn.Module):
+from utils.config import SEED, BASELINE_MODEL_PATH, OPTIMIZATION_DIR, DATA_DIR
+from utils.eval_utils import evaluate_model
+from models.ecg_net import ECGNet1D
+
+class QuantizableClassifier(nn.Module):
     def __init__(self, classifier_module):
         super().__init__()
         self.quant = torch.quantization.QuantStub()
@@ -40,31 +32,20 @@ def main():
     torch.manual_seed(SEED)
     torch.backends.quantized.engine = 'qnnpack'
     
-    project_root = Path(__file__).resolve().parent.parent.parent
-    baseline_model_path = project_root / "results" / "baseline" / "baseline_best.pt"
-    save_model_path = project_root / "results" / "optimization" / "Q3_model.pt"
-    save_metrics_path = project_root / "results" / "optimization" / "Q3_metrics.json"
-    data_dir = project_root.parent / "mitbih"
+    save_model_path = OPTIMIZATION_DIR / "Q3_model.pt"
+    save_metrics_path = OPTIMIZATION_DIR / "Q3_metrics.json"
+    os.makedirs(OPTIMIZATION_DIR, exist_ok=True)
     
-    os.makedirs(save_model_path.parent, exist_ok=True)
-    
-    model = torch.load(baseline_model_path, map_location="cpu", weights_only=False)
-    
-    # Like Q2, wrap only the classifier to avoid Conv1d Mac bugs
+    model = torch.load(BASELINE_MODEL_PATH, map_location="cpu", weights_only=False)
     model.classifier = QuantizableClassifier(model.classifier)
-    
-    # QAT config
     model.classifier.qconfig = torch.quantization.get_default_qat_qconfig('qnnpack')
     
-    # Prepare QAT
     torch.quantization.prepare_qat(model.classifier, inplace=True)
     
-    # Fine-tune with QAT briefly (1 epoch, 10% data)
     print("Fine-tuning QAT...")
     model.train()
     
-    train_df = pd.read_csv(data_dir / "mitbih_train.csv", header=None)
-    # Use 10% of train data for quick fine-tuning
+    train_df = pd.read_csv(DATA_DIR / "mitbih_train.csv", header=None)
     subset_df = train_df.sample(frac=0.1, random_state=SEED)
     X_train = subset_df.iloc[:, :-1].values.astype(np.float32)
     y_train = subset_df.iloc[:, -1].values.astype(np.int64)
@@ -86,10 +67,9 @@ def main():
             optimizer.step()
     
     model.eval()
-    print("Converting QAT model to quantized model...")
+    print("Converting...")
     torch.quantization.convert(model.classifier, inplace=True)
     
-    print("QAT applied. Evaluating...")
     evaluate_model(
         model, 
         model_name="ECGNet1D_QAT", 

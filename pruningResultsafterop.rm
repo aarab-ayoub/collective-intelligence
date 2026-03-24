@@ -1,36 +1,38 @@
-# ECG Optimization Project — Phase 2 Results Summary
+# Phase 1 & Phase 2 Optimization Final Report
 
-## Comparison Table
+## 1. Project Overview
+This project implements a medical inference pipeline for ECG classification (MIT-BIH dataset) optimized for constrained IoT environments. The model was refactored into a modular structure:
+- `models/`: Architecture definitions (`ECGNet1D`).
+- `utils/`: Data loaders, evaluation metrics, and shared configuration.
+- `baseline/`: Training script.
+- `optimization/`: 8 distinct optimization techniques (Q1-Q5, P1-P3).
 
-| ID | Technique | Accuracy | Macro F1 | Size (MB) | Speed (ms/sample) |
-|:---|:---|:---|:---|:---|:---|
-| B0 | Baseline (FP32) | 96.93% | 0.8563 | 0.257 | 0.0150 |
-| P1 | Unstructured Pruning (50%) | 97.60% | 0.8798 | 0.942 | 0.0152 |
-| P2 | Structured Pruning (30%) | 97.32% | 0.8617 | 0.133 | 0.0276 |
-| P3 | Global Magnitude Pruning (40%) | 97.78% | 0.8865 | 0.949 | 0.0280 |
-| Q1 | Dynamic Quantization | 96.92% | 0.8560 | 0.234 | 0.5225 |
-| Q2 | Static PTQ | 96.94% | 0.8567 | 0.236 | 0.7766 |
-| Q3 | Quantization-Aware Training | 97.02% | 0.8603 | 0.236 | 0.5719 |
-| Q4 | Weight-only Quantization (FP16) | 96.91% | 0.8553 | 0.138 | 0.2724 |
-| Q5 | Mixed Precision (FP16+FP32) | 96.91% | 0.8553 | 0.155 | 0.1888 |
+## 2. Performance Comparison Table
+
+| ID | Technique | Accuracy | Macro F1 | Size (MB) | Inference (ms/sample) |
+|:---|:---|:---:|:---:|:---:|:---:|
+| **B0** | **Baseline (FP32)** | **97.43%** | **0.8816** | **0.317** | **0.0198** |
+| P1 | Unstructured Pruning (50%) | 98.01% | 0.8959 | 1.185* | 0.0191 |
+| **P2** | **Structured Pruning (30%)** | **97.73%** | **0.8786** | **0.161** | **0.0161** |
+| P3 | Global Magnitude Pruning (40%)| 98.21% | 0.9021 | 1.196* | 0.0189 |
+| Q1 | Dynamic Quantization | 97.45% | 0.8814 | 0.293 | 0.7824** |
+| Q2 | Static PTQ | 97.48% | 0.8825 | 0.295 | 0.7845** |
+| Q3 | Quantization-Aware Training | 97.69% | 0.8861 | 0.295 | 0.7511** |
+| **Q4** | **Weight-only (FP16)** | **97.44%** | **0.8816** | **0.168** | **0.2744** |
+| Q5 | Mixed Precision (FP16+FP32) | 97.44% | 0.8817 | 0.184 | 0.3384 |
+
+*\* Size increase in P1/P3 is due to sparse tensor storage overhead in PyTorch (requires coordinate indexing).*
+*\*\* Quantization overhead (Q1/Q2/Q3) is observed on CPU/MPS; physical speedup typically requires specialized hardware kernels (INT8).*
+
+## 3. Best Performing Models
+1. **Efficiency Winner (IoT Recommend)**: **Structured Pruning (P2)**. It achieves a **49% size reduction** and **18% speedup** while slightly improving accuracy over baseline thanks to fine-tuning.
+2. **Compression Winner**: **Structured Pruning (P2)** at 0.161 MB.
+3. **Accuracy Winner**: **Global Magnitude Pruning (P3)** at 98.21%.
+
+## 4. Next Steps & Recommendations
+- **Phase 3 — VM Deployment**: Deploy **B0**, **P2**, and **Q4** on the three Virtual Machines (VM1: 500MB, VM2: 1GB, VM3: 2GB).
+- **Phase 5 — Collective Intelligence**: Use the best models from Phase 4 across the 3 VMs to implement a multi-node voting system (Aggregator).
+- **Phase 6 — Supervision**: Connect the results to ThingsBoard using the MQTT telemetry format.
 
 ---
-
-## Technical Insights
-
-### 1. Pruning Performance
-- **Structured Pruning (P2)** is the clear winner for physical deployment. It reduced the model size by ~48% (from 0.257MB to 0.133MB) while actually **increasing** accuracy to 97.32%.
-- **Unstructured (P1)** and **Global (P3)** achieved the highest overall accuracies (97.6% and 97.8%) but resulted in larger file sizes when stored in sparse format. This is due to the overhead of indices in PyTorch's `to_sparse()` for very small parameters counts (~60K params).
-
-### 2. Quantization Performance
-- **Weight-only (Q4)** and **Mixed Precision (Q5)** offered significant size reductions with negligible accuracy loss.
-- **Integer Quantization (Q1-Q3)** resulted in significantly slower inference on this platform (Mac ARM CPU). This is a known phenomenon for small models where the overhead of quantization logic exceeds the compute benefits.
-
-### 3. Recommendations
-For the provided `ECGNet1D` architecture on embedded/IoT hardware:
-- **Use P2 (Structured Pruning)** if hardware-agnostic speed and size are priority.
-- **Use Q5 (Mixed Precision)** if using hardware with FP16 accelerators (like Apple Neural Engine or ARMv8.2).
-- **Optimization Plot**: See `results/optimization/optimization_pareto_front.png` for a visual trade-off analysis.
-
----
-*Generated: 2026-03-23*
+*Report generated on: 2026-03-24*

@@ -4,51 +4,39 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 
-# Add parent directory to path to import utils
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from utils.utils import ECGNet1D, evaluate_model, SEED
+# Modular Imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.append(str(PROJECT_ROOT))
 
-class FP16Wrapper(torch.nn.Module):
+from utils.config import SEED, BASELINE_MODEL_PATH, OPTIMIZATION_DIR
+from utils.eval_utils import evaluate_model
+from models.ecg_net import ECGNet1D
+
+class FP16Wrapper(nn.Module):
     def __init__(self, model):
         super().__init__()
-        self.model = model
-        # Convert all Conv1d and Linear weights to float16
-        for name, module in self.model.named_modules():
-            if isinstance(module, (torch.nn.Conv1d, torch.nn.Linear)):
-                module.weight.data = module.weight.data.to(torch.float16)
-                if getattr(module, 'bias', None) is not None:
-                    module.bias.data = module.bias.data.to(torch.float16)
-
+        self.model = model.half()
     def forward(self, x):
         return self.model(x.half()).float()
 
 def main():
     torch.manual_seed(SEED)
     
-    project_root = Path(__file__).resolve().parent.parent.parent
-    baseline_model_path = project_root / "results" / "baseline" / "baseline_best.pt"
-    save_model_path = project_root / "results" / "optimization" / "Q4_model.pt"
-    save_metrics_path = project_root / "results" / "optimization" / "Q4_metrics.json"
+    save_model_path = OPTIMIZATION_DIR / "Q4_model.pt"
+    save_metrics_path = OPTIMIZATION_DIR / "Q4_metrics.json"
+    os.makedirs(OPTIMIZATION_DIR, exist_ok=True)
     
-    os.makedirs(save_model_path.parent, exist_ok=True)
-    
-    model = torch.load(baseline_model_path, map_location="cpu", weights_only=False)
-    model.eval()
-    
-    model.half()
-            
-    wrapped_model = FP16Wrapper(model)
-    wrapped_model.eval()
+    model = torch.load(BASELINE_MODEL_PATH, map_location="cpu", weights_only=False)
+    model = FP16Wrapper(model)
     
     print("Weight-only (FP16) applied. Evaluating...")
-    
     evaluate_model(
-        wrapped_model, 
-        model_name="ECGNet1D_WeightOnly_FP16", 
+        model, 
+        model_name="ECGNet1D_WeightOnly", 
         technique_id="Q4", 
         technique_name="Weight-only Quantization (FP16)",
         save_path=save_metrics_path,
-        device="cpu", # Fallback calculation on cpu to prevent native MPS errors with half types
+        device="cpu",
         save_model_path=save_model_path
     )
 

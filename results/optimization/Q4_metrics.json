@@ -1,8 +1,8 @@
 {
   "id": "Q4",
   "technique": "Weight-only Quantization (FP16)",
-  "accuracy": 0.9690754613557464,
-  "macro_f1": 0.8553459342177095,
-  "size_mb": 0.13839244842529297,
-  "inference_ms": 0.27242216905715266
+  "accuracy": 0.9744198794080029,
+  "macro_f1": 0.8816173228093869,
+  "size_mb": 0.16805553436279297,
+  "inference_ms": 0.2666862400419861
 }

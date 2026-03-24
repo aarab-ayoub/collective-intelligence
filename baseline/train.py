@@ -25,8 +25,18 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 
+# Add project root to path for modular imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.append(str(PROJECT_ROOT))
+
+from utils.config import (
+    SEED, DATA_DIR, BASELINE_DIR, GRAPHS_DIR, 
+    BASELINE_MODEL_NAME, BASELINE_MODEL_PATH
+)
+from utils.data_loader import get_train_loader, get_test_loader
+from models.ecg_net import ECGNet1D
+
 # ─── Config ───────────────────────────────────────────────────────────────────
-SEED = 42
 BATCH_SIZE = 256
 EPOCHS = 30
 PATIENCE = 8
@@ -38,13 +48,9 @@ random.seed(SEED)
 np.random.seed(SEED)
 torch.manual_seed(SEED)
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_ROOT.parent / "mitbih"
-OUT_DIR = PROJECT_ROOT / "results" / "baseline"
-WEIGHTS_DIR = PROJECT_ROOT / "results" / "baseline"
-PLOTS_DIR = PROJECT_ROOT / "results" / "graphs_and_images"
+OUT_DIR = BASELINE_DIR
+PLOTS_DIR = GRAPHS_DIR
 OUT_DIR.mkdir(parents=True, exist_ok=True)
-WEIGHTS_DIR.mkdir(parents=True, exist_ok=True)
 PLOTS_DIR.mkdir(parents=True, exist_ok=True)
 
 LABELS = ["N", "S", "V", "F", "Q"]
@@ -58,6 +64,7 @@ print(f"Device: {device}")
 
 # ─── Data loading ─────────────────────────────────────────────────────────────
 print("Loading data...")
+# We use custom split here to maintain the 85/15 ratio for baseline
 train_df = pd.read_csv(DATA_DIR / "mitbih_train.csv", header=None)
 test_df = pd.read_csv(DATA_DIR / "mitbih_test.csv", header=None)
 
@@ -66,7 +73,6 @@ y_trainval = train_df.iloc[:, -1].values.astype(np.int64)
 X_test = test_df.iloc[:, :-1].values.astype(np.float32)
 y_test = test_df.iloc[:, -1].values.astype(np.int64)
 
-# Stratified train/val split (85/15)
 X_train, X_val, y_train, y_val = train_test_split(
     X_trainval, y_trainval, test_size=0.15, random_state=SEED, stratify=y_trainval
 )
@@ -82,29 +88,19 @@ print_dist("TRAIN", y_train)
 print_dist("VAL", y_val)
 print_dist("TEST", y_test)
 
-# ─── Model ────────────────────────────────────────────────────────────────────
-# Import from the absolute package now that utils is initialized
-sys.path.append(str(PROJECT_ROOT))
-from utils.utils import ECGNet1D
-
 # ─── Training setup ──────────────────────────────────────────────────────────
-# Convert to tensors (add channel dim for Conv1d)
-x_train_t = torch.tensor(X_train).unsqueeze(1)  # (N, 1, 186)
+x_train_t = torch.tensor(X_train).unsqueeze(1)
 y_train_t = torch.tensor(y_train)
 x_val_t = torch.tensor(X_val).unsqueeze(1)
 y_val_t = torch.tensor(y_val)
 x_test_t = torch.tensor(X_test).unsqueeze(1)
 y_test_t = torch.tensor(y_test)
 
-# Class weights for CrossEntropy (moderate, sqrt of inverse frequency)
 counts = np.bincount(y_train, minlength=NUM_CLASSES).astype(np.float32)
 total = counts.sum()
-# Use effective number of samples weighting (moderate)
 class_weights = total / (NUM_CLASSES * counts)
-# Cap weights to avoid too aggressive rebalancing  
 class_weights = np.clip(class_weights, 1.0, 10.0)
 weight_t = torch.tensor(class_weights, dtype=torch.float32, device=device)
-print(f"\nCross-entropy weights: {dict(zip(LABELS, [round(float(w), 3) for w in class_weights]))}")
 
 train_loader = DataLoader(TensorDataset(x_train_t, y_train_t), batch_size=BATCH_SIZE, shuffle=True)
 val_loader = DataLoader(TensorDataset(x_val_t, y_val_t), batch_size=BATCH_SIZE, shuffle=False)
@@ -194,9 +190,8 @@ model.load_state_dict(best_state)
 model.eval()
 
 # Save weights
-weight_path = WEIGHTS_DIR / "baseline_best.pt"
-torch.save(model, weight_path)
-print(f"\nSaved full model: {weight_path}")
+torch.save(model, BASELINE_MODEL_PATH)
+print(f"\nSaved full model: {BASELINE_MODEL_PATH}")
 
 # Test inference
 test_preds, test_targs = [], []
@@ -221,7 +216,7 @@ per_class_rec = recall_score(test_targs, test_preds, average=None, labels=list(r
 cm = confusion_matrix(test_targs, test_preds, labels=list(range(NUM_CLASSES)))
 
 # Model size
-model_size_bytes = os.path.getsize(weight_path)
+model_size_bytes = os.path.getsize(BASELINE_MODEL_PATH)
 model_size_mb = model_size_bytes / (1024 * 1024)
 
 print("\n" + "=" * 60)

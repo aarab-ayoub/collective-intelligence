@@ -1,8 +1,8 @@
 {
   "id": "Q3",
   "technique": "Quantization-Aware Training",
-  "accuracy": 0.970217431025032,
-  "macro_f1": 0.8602883664851774,
-  "size_mb": 0.23580074310302734,
-  "inference_ms": 0.5719112042755231
+  "accuracy": 0.9768865338936598,
+  "macro_f1": 0.8860883562929445,
+  "size_mb": 0.29500484466552734,
+  "inference_ms": 0.5954901238352299
 }

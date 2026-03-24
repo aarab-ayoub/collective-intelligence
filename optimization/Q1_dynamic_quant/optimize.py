@@ -4,26 +4,25 @@ from pathlib import Path
 import torch
 import torch.quantization
 
-# Add parent directory to path to import utils
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from utils.utils import ECGNet1D, evaluate_model, SEED
+# Add parent directory to path to import models and utils
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.append(str(PROJECT_ROOT))
+
+from utils.config import SEED, BASELINE_MODEL_PATH, OPTIMIZATION_DIR
+from utils.eval_utils import evaluate_model
+from models.ecg_net import ECGNet1D
 
 def main():
     torch.manual_seed(SEED)
-    
-    # Set quantization engine for Mac/ARM compatibility
     torch.backends.quantized.engine = 'qnnpack'
     
-    # Paths
-    project_root = Path(__file__).resolve().parent.parent.parent
-    baseline_model_path = project_root / "results" / "baseline" / "baseline_best.pt"
-    save_model_path = project_root / "results" / "optimization" / "Q1_model.pt"
-    save_metrics_path = project_root / "results" / "optimization" / "Q1_metrics.json"
+    save_model_path = OPTIMIZATION_DIR / "Q1_model.pt"
+    save_metrics_path = OPTIMIZATION_DIR / "Q1_metrics.json"
     
     os.makedirs(save_model_path.parent, exist_ok=True)
     
     # Load baseline
-    model = torch.load(baseline_model_path, map_location="cpu", weights_only=False)
+    model = torch.load(BASELINE_MODEL_PATH, map_location="cpu", weights_only=False)
     model.eval()
     
     # 1. Dynamic Quantization

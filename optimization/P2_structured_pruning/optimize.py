@@ -3,24 +3,17 @@ import sys
 from pathlib import Path
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader, TensorDataset
-import pandas as pd
-import numpy as np
 
-# Add parent directory to path to import utils
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from utils.utils import evaluate_model, SEED
+# Modular Imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.append(str(PROJECT_ROOT))
 
-def get_train_loader(data_dir, batch_size=256):
-    train_df = pd.read_csv(Path(data_dir) / "mitbih_train.csv", header=None)
-    X = train_df.iloc[:, :-1].values.astype(np.float32)
-    y = train_df.iloc[:, -1].values.astype(np.int64)
-    return DataLoader(TensorDataset(torch.tensor(X).unsqueeze(1), torch.tensor(y)), batch_size=batch_size, shuffle=True)
+from utils.config import SEED, BASELINE_MODEL_PATH, OPTIMIZATION_DIR
+from utils.eval_utils import evaluate_model
+from utils.data_loader import get_train_loader
+from models.ecg_net import ECGNet1D
 
 class ECGNet1D_Narrow(nn.Module):
-    """
-    A dynamically sizable version of ECGNet1D that accepts channel counts.
-    """
     def __init__(self, c1, c2, c3, c4, c5, fc1, n_classes=5, dropout=0.3):
         super().__init__()
         self.features = nn.Sequential(
@@ -32,7 +25,6 @@ class ECGNet1D_Narrow(nn.Module):
             nn.ReLU(inplace=True),
             nn.MaxPool1d(2),
             nn.Dropout(0.15),
-            
             nn.Conv1d(c2, c3, kernel_size=5, padding=2),
             nn.BatchNorm1d(c3),
             nn.ReLU(inplace=True),
@@ -41,7 +33,6 @@ class ECGNet1D_Narrow(nn.Module):
             nn.ReLU(inplace=True),
             nn.MaxPool1d(2),
             nn.Dropout(0.15),
-            
             nn.Conv1d(c4, c5, kernel_size=3, padding=1),
             nn.BatchNorm1d(c5),
             nn.ReLU(inplace=True),
@@ -54,159 +45,125 @@ class ECGNet1D_Narrow(nn.Module):
             nn.Dropout(dropout * 0.5),
             nn.Linear(fc1, n_classes),
         )
-
     def forward(self, x):
         z = self.features(x).squeeze(-1)
         return self.classifier(z)
 
 def get_topk_indices(weight_tensor, keep_ratio=0.7):
-    # L1 norm across all dimensions except output channels (dim 0)
     l1_norms = weight_tensor.abs().sum(dim=list(range(1, weight_tensor.dim())))
-    num_keep = int(weight_tensor.size(0) * keep_ratio)
-    # Get indices of the top-k norms
+    num_keep = max(1, int(weight_tensor.size(0) * keep_ratio))
     _, indices = torch.topk(l1_norms, num_keep)
-    return indices.sort()[0] # Sort to maintain channel order
+    return indices.sort()[0]
 
 def main():
     torch.manual_seed(SEED)
+    save_model_path = OPTIMIZATION_DIR / "P2_model.pt"
+    save_metrics_path = OPTIMIZATION_DIR / "P2_metrics.json"
+    os.makedirs(OPTIMIZATION_DIR, exist_ok=True)
     
-    project_root = Path(__file__).resolve().parent.parent.parent
-    baseline_model_path = project_root / "results" / "baseline" / "baseline_best.pt"
-    save_model_path = project_root / "results" / "optimization" / "P2_model.pt"
-    save_metrics_path = project_root / "results" / "optimization" / "P2_metrics.json"
-    data_dir = project_root.parent / "mitbih"
-    
-    os.makedirs(save_model_path.parent, exist_ok=True)
-    
-    # Needs to import the dense model from utils to avoid circular dependency
-    from utils.utils import ECGNet1D
-    model = torch.load(baseline_model_path, map_location="mps" if torch.backends.mps.is_available() else "cpu", weights_only=False)
-    
-    # 1. Determine importance of filters/channels and keep 70%
-    keep_ratio = 0.7
-    
-    # Feature layer indices with Conv1d
-    conv_indices = [0, 3, 8, 11, 16]
-    bn_indices = [1, 4, 9, 12, 17]
-    
-    # Classifier linear indices
-    linear1_idx = 1
-    # Final layer doesn't get pruned on output dimension
-    linear2_idx = 4
-    
-    kept_out_channels = []
-    
-    # Map from layer idx to kept output indices
-    kept_indices_map_feat = {}
-    
-    for idx in conv_indices:
-        weight = model.features[idx].weight.data
-        idxs = get_topk_indices(weight, keep_ratio)
-        kept_indices_map_feat[idx] = idxs
-        kept_out_channels.append(len(idxs))
-        
-    # Linear 1
-    w_fc1 = model.classifier[linear1_idx].weight.data
-    kept_fc1_idx = get_topk_indices(w_fc1, keep_ratio)
-    fc1_out_ch = len(kept_fc1_idx)
-    
-    # 2. Architect the new dense narrow model
-    narrow_model = ECGNet1D_Narrow(
-        c1=kept_out_channels[0],
-        c2=kept_out_channels[1],
-        c3=kept_out_channels[2],
-        c4=kept_out_channels[3],
-        c5=kept_out_channels[4],
-        fc1=fc1_out_ch
-    )
-    
-    # 3. Copy kept weights into the narrow model
-    
-    # Feature block
-    prev_kept_idx = None
-    for i in range(len(model.features)):
-        if isinstance(model.features[i], nn.Conv1d):
-            orig_w = model.features[i].weight.data
-            orig_b = model.features[i].bias.data
-            
-            curr_kept_idx = kept_indices_map_feat[i]
-            
-            # Slice output channels
-            sliced_w = orig_w[curr_kept_idx]
-            sliced_b = orig_b[curr_kept_idx]
-            
-            # Slice input channels if not the first layer
-            if prev_kept_idx is not None:
-                sliced_w = sliced_w[:, prev_kept_idx, :]
-                
-            narrow_model.features[i].weight.data = sliced_w
-            narrow_model.features[i].bias.data = sliced_b
-            
-            prev_kept_idx = curr_kept_idx
-            
-        elif isinstance(model.features[i], nn.BatchNorm1d):
-            # BN channels match the PREVIOUS Conv1d output channels
-            orig_bn = model.features[i]
-            sliced_bn = narrow_model.features[i]
-            
-            sliced_bn.weight.data = orig_bn.weight.data[prev_kept_idx]
-            sliced_bn.bias.data = orig_bn.bias.data[prev_kept_idx]
-            sliced_bn.running_mean.data = orig_bn.running_mean.data[prev_kept_idx]
-            sliced_bn.running_var.data = orig_bn.running_var.data[prev_kept_idx]
-            
-    # Classifier block
-    # Linear 1
-    orig_fc1_w = model.classifier[linear1_idx].weight.data
-    orig_fc1_b = model.classifier[linear1_idx].bias.data
-    
-    # Input comes from features output (AdaptiveAvgPool1d flattens it)
-    sliced_fc1_w = orig_fc1_w[kept_fc1_idx][:, prev_kept_idx]
-    sliced_fc1_b = orig_fc1_b[kept_fc1_idx]
-    
-    narrow_model.classifier[linear1_idx].weight.data = sliced_fc1_w
-    narrow_model.classifier[linear1_idx].bias.data = sliced_fc1_b
-    
-    # Linear 2 (No output pruning, just input pruning from prev layer)
-    orig_fc2_w = model.classifier[linear2_idx].weight.data
-    orig_fc2_b = model.classifier[linear2_idx].bias.data
-    
-    sliced_fc2_w = orig_fc2_w[:, kept_fc1_idx]
-    
-    narrow_model.classifier[linear2_idx].weight.data = sliced_fc2_w
-    narrow_model.classifier[linear2_idx].bias.data = orig_fc2_b
-    
-    # 4. Fine-tune the reconstructed model
-    print("Narrow structured model rebuilt successfully. Fine-tuning for 5 epochs...")
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-    narrow_model.to(device)
+    model = torch.load(BASELINE_MODEL_PATH, map_location=device, weights_only=False)
+    
+    keep_ratio = 0.7
+    conv_indices = [0, 3, 8, 11, 16]
+    kept_indices_map = {idx: get_topk_indices(model.features[idx].weight.data, keep_ratio) for idx in conv_indices}
+    kept_fc1_idx = get_topk_indices(model.classifier[1].weight.data, keep_ratio)
+    
+    narrow_model = ECGNet1D_Narrow(
+        c1=len(kept_indices_map[0]), c2=len(kept_indices_map[3]),
+        c3=len(kept_indices_map[8]), c4=len(kept_indices_map[11]),
+        c5=len(kept_indices_map[16]), fc1=len(kept_fc1_idx)
+    ).to(device)
+    
+    print("Copying weights to narrow model...")
+    # Conv 0
+    idx = 0
+    curr_kept = kept_indices_map[idx]
+    narrow_model.features[idx].weight.data.copy_(model.features[idx].weight.data[curr_kept])
+    narrow_model.features[idx].bias.data.copy_(model.features[idx].bias.data[curr_kept])
+    # BN 1
+    narrow_model.features[idx+1].weight.data.copy_(model.features[idx+1].weight.data[curr_kept])
+    narrow_model.features[idx+1].bias.data.copy_(model.features[idx+1].bias.data[curr_kept])
+    narrow_model.features[idx+1].running_mean.copy_(model.features[idx+1].running_mean[curr_kept])
+    narrow_model.features[idx+1].running_var.copy_(model.features[idx+1].running_var[curr_kept])
+    prev_kept = curr_kept
+
+    # Conv 3
+    idx = 3
+    curr_kept = kept_indices_map[idx]
+    narrow_model.features[idx].weight.data.copy_(model.features[idx].weight.data[curr_kept][:, prev_kept])
+    narrow_model.features[idx].bias.data.copy_(model.features[idx].bias.data[curr_kept])
+    # BN 4
+    narrow_model.features[idx+1].weight.data.copy_(model.features[idx+1].weight.data[curr_kept])
+    narrow_model.features[idx+1].bias.data.copy_(model.features[idx+1].bias.data[curr_kept])
+    narrow_model.features[idx+1].running_mean.copy_(model.features[idx+1].running_mean[curr_kept])
+    narrow_model.features[idx+1].running_var.copy_(model.features[idx+1].running_var[curr_kept])
+    prev_kept = curr_kept
+
+    # Conv 8
+    idx = 8
+    curr_kept = kept_indices_map[idx]
+    narrow_model.features[idx].weight.data.copy_(model.features[idx].weight.data[curr_kept][:, prev_kept])
+    narrow_model.features[idx].bias.data.copy_(model.features[idx].bias.data[curr_kept])
+    # BN 9
+    narrow_model.features[idx+1].weight.data.copy_(model.features[idx+1].weight.data[curr_kept])
+    narrow_model.features[idx+1].bias.data.copy_(model.features[idx+1].bias.data[curr_kept])
+    narrow_model.features[idx+1].running_mean.copy_(model.features[idx+1].running_mean[curr_kept])
+    narrow_model.features[idx+1].running_var.copy_(model.features[idx+1].running_var[curr_kept])
+    prev_kept = curr_kept
+
+    # Conv 11
+    idx = 11
+    curr_kept = kept_indices_map[idx]
+    narrow_model.features[idx].weight.data.copy_(model.features[idx].weight.data[curr_kept][:, prev_kept])
+    narrow_model.features[idx].bias.data.copy_(model.features[idx].bias.data[curr_kept])
+    # BN 12
+    narrow_model.features[idx+1].weight.data.copy_(model.features[idx+1].weight.data[curr_kept])
+    narrow_model.features[idx+1].bias.data.copy_(model.features[idx+1].bias.data[curr_kept])
+    narrow_model.features[idx+1].running_mean.copy_(model.features[idx+1].running_mean[curr_kept])
+    narrow_model.features[idx+1].running_var.copy_(model.features[idx+1].running_var[curr_kept])
+    prev_kept = curr_kept
+
+    # Conv 16
+    idx = 16
+    curr_kept = kept_indices_map[idx]
+    narrow_model.features[idx].weight.data.copy_(model.features[idx].weight.data[curr_kept][:, prev_kept])
+    narrow_model.features[idx].bias.data.copy_(model.features[idx].bias.data[curr_kept])
+    # BN 17
+    narrow_model.features[idx+1].weight.data.copy_(model.features[idx+1].weight.data[curr_kept])
+    narrow_model.features[idx+1].bias.data.copy_(model.features[idx+1].bias.data[curr_kept])
+    narrow_model.features[idx+1].running_mean.copy_(model.features[idx+1].running_mean[curr_kept])
+    narrow_model.features[idx+1].running_var.copy_(model.features[idx+1].running_var[curr_kept])
+    prev_kept = curr_kept
+
+    # Classifier 1
+    narrow_model.classifier[1].weight.data.copy_(model.classifier[1].weight.data[kept_fc1_idx][:, prev_kept])
+    narrow_model.classifier[1].bias.data.copy_(model.classifier[1].bias.data[kept_fc1_idx])
+    # Classifier 4
+    narrow_model.classifier[4].weight.data.copy_(model.classifier[4].weight.data[:, kept_fc1_idx])
+    narrow_model.classifier[4].bias.data.copy_(model.classifier[4].bias.data)
+
+    print("Fine-tuning structured-pruned model...")
+    train_loader = get_train_loader()
+    optimizer = torch.optim.Adam(narrow_model.parameters(), lr=1e-4)
+    criterion = torch.nn.CrossEntropyLoss()
+    
     narrow_model.train()
-    
-    train_loader = get_train_loader(data_dir)
-    optimizer = torch.optim.Adam(narrow_model.parameters(), lr=1e-4) # Fine-tune LR
-    criterion = nn.CrossEntropyLoss()
-    
     for epoch in range(5):
-        epoch_loss = 0.0
         for bx, by in train_loader:
             bx, by = bx.to(device), by.to(device)
             optimizer.zero_grad()
-            logits = narrow_model(bx)
-            loss = criterion(logits, by)
+            loss = criterion(narrow_model(bx), by)
             loss.backward()
             optimizer.step()
-            epoch_loss += loss.item()
-        print(f"Epoch {epoch+1}/5 - Loss: {epoch_loss/len(train_loader):.4f}")
-            
-    narrow_model.eval()
-    
-    print("Structured Pruning completely applied. Evaluating narrow model...")
+
     evaluate_model(
         narrow_model, 
         model_name="ECGNet1D_Narrow_StructPruned", 
         technique_id="P2", 
         technique_name="Structured Pruning (30%)",
         save_path=save_metrics_path,
-        device="mps" if torch.backends.mps.is_available() else "cpu",
+        device=device,
         save_model_path=save_model_path
     )
 

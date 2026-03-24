@@ -1,15 +1,19 @@
 import os
+import sys
 import json
 import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
 
+# Modular Imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.append(str(PROJECT_ROOT))
+
+from utils.config import RESULTS_DIR, OPTIMIZATION_DIR, BASELINE_DIR
+
 def main():
-    project_root = Path(__file__).resolve().parent.parent
-    results_dir = project_root / "results" / "optimization"
-    
     # Baseline metrics
-    baseline_metrics_file = project_root / "results" / "baseline" / "baseline_cnn_metrics.json"
+    baseline_metrics_file = BASELINE_DIR / "baseline_cnn_metrics.json"
     if baseline_metrics_file.exists():
         with open(baseline_metrics_file) as f:
             bm = json.load(f)
@@ -29,7 +33,7 @@ def main():
     if baseline:
         records.append(baseline)
         
-    for p in results_dir.glob("*_metrics.json"):
+    for p in OPTIMIZATION_DIR.glob("*_metrics.json"):
         with open(p) as f:
             records.append(json.load(f))
             
@@ -49,7 +53,7 @@ def main():
     print("="*80 + "\n")
     
     # Save CSV
-    csv_path = results_dir / "optimization_comparison.csv"
+    csv_path = OPTIMIZATION_DIR / "optimization_comparison.csv"
     df.to_csv(csv_path, index=False)
     print(f"Saved CSV comparison to: {csv_path}")
     
@@ -69,7 +73,6 @@ def main():
     plt.ylabel("Accuracy (%)")
     plt.title("Size vs Accuracy")
     plt.grid(True, linestyle="--", alpha=0.7)
-    # Invert X axis so smaller size is better (right)
     plt.gca().invert_xaxis()
     
     # Plot 2: Speed vs Accuracy
@@ -85,14 +88,12 @@ def main():
     plt.ylabel("Accuracy (%)")
     plt.title("Speed vs Accuracy")
     plt.grid(True, linestyle="--", alpha=0.7)
-    # Invert X axis so faster is better (right)
     plt.gca().invert_xaxis()
     
-    # Put a legend outside
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.tight_layout()
     
-    plot_path = results_dir / "optimization_pareto_front.png"
+    plot_path = OPTIMIZATION_DIR / "optimization_pareto_front.png"
     plt.savefig(plot_path, dpi=150, bbox_inches="tight")
     print(f"Saved Pareto plots to  : {plot_path}")
 
