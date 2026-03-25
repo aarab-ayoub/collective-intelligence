@@ -66,6 +66,13 @@ def solve_collective(specimen_id):
     
     print(f"[Aggregator] Collective Decision: Class {final_class} with confidence {final_confidence:.4f}")
 
+    # 3. Validation by Confidence
+    validation_needed = False
+    if final_confidence < CONFIDENCE_THRESHOLD:
+        print(f"[Aggregator] Confidence {final_confidence:.4f} < {CONFIDENCE_THRESHOLD}. RE-TRIGGERING validation...")
+        # Simulation: In a real system, we'd request more data. Here we just flag it.
+        validation_needed = True
+
     # 4. MQTT Telemetry (Supervision Phase 6)
     mqtt_host = os.getenv("MQTT_HOST")
     mqtt_token = os.getenv("MQTT_TOKEN")
@@ -86,14 +93,6 @@ def solve_collective(specimen_id):
             client.disconnect()
         except Exception as e:
             print(f"[Aggregator] MQTT Error: {e}")
-
-    # 3. Validation by Confidence
-    if final_confidence < CONFIDENCE_THRESHOLD:
-        print(f"[Aggregator] Confidence {final_confidence:.4f} < {CONFIDENCE_THRESHOLD}. RE-TRIGGERING validation...")
-        # Simulation: In a real system, we'd request more data. Here we just flag it.
-        validation_needed = True
-    else:
-        validation_needed = False
 
     return {
         "specimen_id": specimen_id,

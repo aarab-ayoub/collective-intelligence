@@ -34,5 +34,45 @@ The following table summarizes the average inference latency (ms) across all tec
 - **Portability:** Implemented a fallback mechanism in [node_eval.py](file:///Users/ayoub/work/MS-DS_ML_Projects/IOT/collective-intelligence/deployment/node_eval.py) to re-apply quantization transforms using the `qnnpack` engine, bypassing architecture-specific pointer errors.
 - **Type Safety:** Added post-load type enforcement to ensure Mixed Precision models maintain consistent Float/Half layers.
 
-## 4. Next Steps
-We are now ready for **Phase 5: Collective Intelligence**, where we will deploy these three "Champion" models (P3, P2, Q5) and implement a real-time voting aggregator.
+## Phase 4 — Selection of Champion Models
+
+Based on the weighted scoring criteria defined for each resource tier, the following "Champion" models have been selected for Phase 5 Deployment.
+
+### Selection Table
+| VM ID | Resource Tier | Champion Technique | Accuracy | Latency | Weighted Score |
+|-------|---------------|--------------------|----------|---------|----------------|
+| **VM1** | 500 MB | **Static PTQ (Q2)** | 97.48% | 138.5 ms | **0.802** |
+| **VM2** | 1 GB | **Structured Pruning (P2)** | 97.73% | 3.18 ms | **0.669** |
+| **VM3** | 2 GB | **Global Magnitude (P3)** | 98.21% | 1.02 ms | **0.849** |
+
+### Justifications
+- **VM1 (Static PTQ):** For the most resource-constrained node, Static PTQ (Q2) offers the best balance of RAM and CPU footprint while maintaining high accuracy. It minimizes the risk of OOM (Out Of Memory) compared to some pruning techniques that generate sparse tensors.
+- **VM2 (Structured Pruning):** In the 1GB tier, Structured Pruning (P2) is exceptionally fast (3.18 ms) because it physically removes channels, allowing for standard dense matrix operations without the overhead of sparse kernels.
+- **VM3 (Global Magnitude):** With 2GB of headroom, Global Magnitude (P3) achieves the highest overall accuracy (98.21%) and extremely low latency (1.02 ms), making it the most reliable "high-end" node for our collective system.
+
+## Phase 5 — Collective Intelligence Results
+
+The system successfully implemented a multi-node consensus mechanism using the champion models.
+
+### Collective Performance (10 Specimen Batch)
+- **Consensus Rate:** **100.0%**
+- **Collective Accuracy:** 100% (on the tested slice)
+- **Total Validation Re-triggers:** 0 (All confidence levels > 0.93)
+- **Mechanism:** Weighted voting based on historical node accuracy (Q2, P2, P3).
+
+## Phase 6 — Supervision & Telemetry
+
+The IoT nodes are now equipped with an MQTT telemetry bridge for ThingsBoard.
+
+### Monitored Metrics
+- **Node Health:** Real-time CPU and RAM usage reporting.
+- **Model Telemetry:** Technique ID, Prediction Class, and Softmax Confidence.
+- **Collective Insights:** Consensus status and re-validation triggers.
+
+### Deliverables
+- **Orchestrator:** [run_phase5.py](file:///Users/ayoub/work/MS-DS_ML_Projects/IOT/collective-intelligence/run_phase5.py)
+- **Aggregator:** [aggregator.py](file:///Users/ayoub/work/MS-DS_ML_Projects/IOT/collective-intelligence/deployment/aggregator.py)
+- **Dashboard:** [dashboard.json](file:///Users/ayoub/work/MS-DS_ML_Projects/IOT/thingsboard/dashboard.json)
+
+## Conclusion
+This project demonstrates that deep learning models can be effectively deployed on ultra-constrained IoT devices (500MB RAM) using a combination of **Static Quantization** and **Pruning**, while maintaining high diagnostic reliability through **Collective Intelligence**.

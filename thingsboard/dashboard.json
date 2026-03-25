@@ -1,0 +1,21 @@
+{
+  "remote_monitoring_dashboard": {
+    "widgets": [
+      {
+        "title": "Collective Consensus Rate",
+        "type": "digital_gauge",
+        "key": "consensus_achieved"
+      },
+      {
+        "title": "Node Health (CPU/RAM)",
+        "type": "multiseries_chart",
+        "keys": ["cpu_usage_pct", "ram_usage_mb"]
+      },
+      {
+        "title": "ECG Predictions",
+        "type": "entities_table",
+        "keys": ["prediction", "confidence", "vm_id"]
+      }
+    ]
+  }
+}

@@ -9,22 +9,22 @@
                 "prediction": 0,
                 "confidence": 0.9999700784683228,
                 "accuracy": 1.0,
-                "cpu_percent": 22.3,
-                "ram_percent": 63.858795166015625
+                "cpu_percent": 29.2,
+                "ram_percent": 64.86167907714844
             },
             "VM2": {
                 "prediction": 0,
                 "confidence": 0.9994134902954102,
                 "accuracy": 1.0,
-                "cpu_percent": 23.2,
-                "ram_percent": 62.993621826171875
+                "cpu_percent": 31.0,
+                "ram_percent": 64.27764892578125
             },
             "VM1": {
                 "prediction": 0,
                 "confidence": 0.9997954964637756,
                 "accuracy": 1.0,
-                "cpu_percent": 16.8,
-                "ram_percent": 56.94389343261719
+                "cpu_percent": 19.6,
+                "ram_percent": 64.42642211914062
             }
         }
     },
@@ -39,21 +39,21 @@
                 "confidence": 0.9977680444717407,
                 "accuracy": 1.0,
                 "cpu_percent": 7.1,
-                "ram_percent": 56.94389343261719
+                "ram_percent": 64.47525024414062
             },
             "VM2": {
                 "prediction": 0,
                 "confidence": 0.9985836744308472,
                 "accuracy": 1.0,
-                "cpu_percent": 16.3,
-                "ram_percent": 62.042999267578125
+                "cpu_percent": 56.3,
+                "ram_percent": 64.33868408203125
             },
             "VM3": {
                 "prediction": 0,
                 "confidence": 0.9996621608734131,
                 "accuracy": 1.0,
-                "cpu_percent": 62.5,
-                "ram_percent": 63.858795166015625
+                "cpu_percent": 42.7,
+                "ram_percent": 64.90402221679688
             }
         }
     },
@@ -67,22 +67,22 @@
                 "prediction": 0,
                 "confidence": 0.9849633574485779,
                 "accuracy": 1.0,
-                "cpu_percent": 4.9,
-                "ram_percent": 56.95610046386719
+                "cpu_percent": 9.5,
+                "ram_percent": 64.4989013671875
             },
             "VM2": {
                 "prediction": 0,
                 "confidence": 0.9916025996208191,
                 "accuracy": 1.0,
-                "cpu_percent": 15.3,
-                "ram_percent": 61.530303955078125
+                "cpu_percent": 29.9,
+                "ram_percent": 64.33868408203125
             },
             "VM3": {
                 "prediction": 0,
                 "confidence": 0.995641827583313,
                 "accuracy": 1.0,
-                "cpu_percent": 71.4,
-                "ram_percent": 63.858795166015625
+                "cpu_percent": 39.3,
+                "ram_percent": 64.90402221679688
             }
         }
     },
@@ -92,26 +92,26 @@
         "confidence": 0.998564492290261,
         "validation_needed": false,
         "nodes": {
+            "VM1": {
+                "prediction": 0,
+                "confidence": 0.9988960027694702,
+                "accuracy": 1.0,
+                "cpu_percent": 6.3,
+                "ram_percent": 64.5355224609375
+            },
             "VM2": {
                 "prediction": 0,
                 "confidence": 0.9972489476203918,
                 "accuracy": 1.0,
-                "cpu_percent": 33.3,
-                "ram_percent": 59.943389892578125
+                "cpu_percent": 66.7,
+                "ram_percent": 64.33868408203125
             },
             "VM3": {
                 "prediction": 0,
                 "confidence": 0.9995445609092712,
                 "accuracy": 1.0,
-                "cpu_percent": 77.8,
-                "ram_percent": 63.858795166015625
-            },
-            "VM1": {
-                "prediction": 0,
-                "confidence": 0.9988960027694702,
-                "accuracy": 1.0,
-                "cpu_percent": 5.0,
-                "ram_percent": 56.96601867675781
+                "cpu_percent": 63.2,
+                "ram_percent": 64.90402221679688
             }
         }
     },
@@ -121,26 +121,26 @@
         "confidence": 0.9946728106612248,
         "validation_needed": false,
         "nodes": {
+            "VM1": {
+                "prediction": 0,
+                "confidence": 0.9964516162872314,
+                "accuracy": 1.0,
+                "cpu_percent": 7.7,
+                "ram_percent": 64.5355224609375
+            },
             "VM2": {
                 "prediction": 0,
                 "confidence": 0.9882262349128723,
                 "accuracy": 1.0,
-                "cpu_percent": 17.5,
-                "ram_percent": 59.955596923828125
+                "cpu_percent": 21.1,
+                "ram_percent": 64.33868408203125
             },
             "VM3": {
                 "prediction": 0,
                 "confidence": 0.9993222951889038,
                 "accuracy": 1.0,
-                "cpu_percent": 20.8,
-                "ram_percent": 63.677978515625
-            },
-            "VM1": {
-                "prediction": 0,
-                "confidence": 0.9964516162872314,
-                "accuracy": 1.0,
-                "cpu_percent": 5.7,
-                "ram_percent": 56.982421875
+                "cpu_percent": 45.9,
+                "ram_percent": 64.90402221679688
             }
         }
     },
@@ -154,22 +154,22 @@
                 "prediction": 0,
                 "confidence": 0.999478280544281,
                 "accuracy": 1.0,
-                "cpu_percent": 50.0,
-                "ram_percent": 59.955596923828125
+                "cpu_percent": 62.5,
+                "ram_percent": 64.33868408203125
             },
             "VM3": {
                 "prediction": 0,
                 "confidence": 0.9999710321426392,
                 "accuracy": 1.0,
-                "cpu_percent": 0.0,
-                "ram_percent": 63.677978515625
+                "cpu_percent": 37.0,
+                "ram_percent": 64.92843627929688
             },
             "VM1": {
                 "prediction": 0,
                 "confidence": 0.9998956918716431,
                 "accuracy": 1.0,
-                "cpu_percent": 6.5,
-                "ram_percent": 56.9732666015625
+                "cpu_percent": 6.7,
+                "ram_percent": 64.51568603515625
             }
         }
     },
@@ -183,22 +183,22 @@
                 "prediction": 0,
                 "confidence": 0.998121440410614,
                 "accuracy": 1.0,
-                "cpu_percent": 100.0,
-                "ram_percent": 59.955596923828125
+                "cpu_percent": 23.7,
+                "ram_percent": 64.29862976074219
             },
             "VM3": {
                 "prediction": 0,
                 "confidence": 0.9992057681083679,
                 "accuracy": 1.0,
-                "cpu_percent": 50.0,
-                "ram_percent": 63.677978515625
+                "cpu_percent": 73.3,
+                "ram_percent": 64.92843627929688
             },
             "VM1": {
                 "prediction": 0,
                 "confidence": 0.9974173307418823,
                 "accuracy": 1.0,
-                "cpu_percent": 7.9,
-                "ram_percent": 56.9732666015625
+                "cpu_percent": 6.7,
+                "ram_percent": 64.51568603515625
             }
         }
     },
@@ -212,51 +212,51 @@
                 "prediction": 0,
                 "confidence": 0.9689823389053345,
                 "accuracy": 1.0,
-                "cpu_percent": 50.0,
-                "ram_percent": 59.955596923828125
+                "cpu_percent": 52.9,
+                "ram_percent": 64.29862976074219
             },
             "VM3": {
                 "prediction": 0,
                 "confidence": 0.9621890783309937,
                 "accuracy": 1.0,
-                "cpu_percent": 75.0,
-                "ram_percent": 63.677978515625
+                "cpu_percent": 29.9,
+                "ram_percent": 64.92843627929688
             },
             "VM1": {
                 "prediction": 0,
                 "confidence": 0.860742449760437,
                 "accuracy": 1.0,
-                "cpu_percent": 5.4,
-                "ram_percent": 56.9732666015625
+                "cpu_percent": 6.6,
+                "ram_percent": 64.49699401855469
             }
         }
     },
     {
         "specimen_id": 8,
         "final_class": 0,
-        "confidence": 0.9919570249129347,
+        "confidence": 0.9919570249129346,
         "validation_needed": false,
         "nodes": {
-            "VM1": {
-                "prediction": 0,
-                "confidence": 0.9817453026771545,
-                "accuracy": 1.0,
-                "cpu_percent": 3.3,
-                "ram_percent": 56.9732666015625
-            },
             "VM2": {
                 "prediction": 0,
                 "confidence": 0.9957821369171143,
                 "accuracy": 1.0,
-                "cpu_percent": 0.0,
-                "ram_percent": 59.955596923828125
+                "cpu_percent": 22.0,
+                "ram_percent": 64.29862976074219
             },
             "VM3": {
                 "prediction": 0,
                 "confidence": 0.9982864260673523,
                 "accuracy": 1.0,
-                "cpu_percent": 66.7,
-                "ram_percent": 63.677978515625
+                "cpu_percent": 30.8,
+                "ram_percent": 64.94064331054688
+            },
+            "VM1": {
+                "prediction": 0,
+                "confidence": 0.9817453026771545,
+                "accuracy": 1.0,
+                "cpu_percent": 6.1,
+                "ram_percent": 64.50920104980469
             }
         }
     },
@@ -266,26 +266,26 @@
         "confidence": 0.9995561806094906,
         "validation_needed": false,
         "nodes": {
+            "VM1": {
+                "prediction": 0,
+                "confidence": 0.9994065761566162,
+                "accuracy": 1.0,
+                "cpu_percent": 20.0,
+                "ram_percent": 64.50920104980469
+            },
             "VM2": {
                 "prediction": 0,
                 "confidence": 0.9992978572845459,
                 "accuracy": 1.0,
-                "cpu_percent": 100.0,
-                "ram_percent": 59.955596923828125
+                "cpu_percent": 50.0,
+                "ram_percent": 64.29862976074219
             },
             "VM3": {
                 "prediction": 0,
                 "confidence": 0.9999617338180542,
                 "accuracy": 1.0,
-                "cpu_percent": 84.6,
-                "ram_percent": 63.677978515625
-            },
-            "VM1": {
-                "prediction": 0,
-                "confidence": 0.9994065761566162,
-                "accuracy": 1.0,
-                "cpu_percent": 5.4,
-                "ram_percent": 56.95304870605469
+                "cpu_percent": 75.0,
+                "ram_percent": 64.94064331054688
             }
         }
     }
