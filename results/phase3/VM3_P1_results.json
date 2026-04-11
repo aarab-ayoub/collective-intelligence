@@ -3,9 +3,9 @@
   "tech_id": "P1",
   "tech_name": "Unstructured Pruning",
   "accuracy": 0.9801297277544309,
-  "avg_latency_ms": 49.37701229996492,
-  "std_latency_ms": 42.14572242605217,
-  "avg_cpu_percent": 340.82,
-  "avg_ram_mb": 677.15390625,
+  "avg_latency_ms": 13.886829399962153,
+  "std_latency_ms": 24.519050694340617,
+  "avg_cpu_percent": 56.834999999999994,
+  "avg_ram_mb": 678.7234375,
   "model_path": "/app/results/optimization/P1_model.pt"
 }

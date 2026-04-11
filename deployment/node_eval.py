@@ -136,8 +136,9 @@ def main():
         dt = (time.perf_counter() - t0) * 1000 # ms
         latencies.append(dt)
         
-        # Sample CPU/RAM
-        cpu_usages.append(process.cpu_percent())
+        # Sample CPU/RAM (normalize by core count for true 0-100%)
+        num_cpus = os.cpu_count() or 1
+        cpu_usages.append(process.cpu_percent() / num_cpus)
         mem_usages.append(process.memory_info().rss / (1024 * 1024))
 
     avg_lat = np.mean(latencies)
@@ -148,10 +149,6 @@ def main():
     # Measure Accuracy
     acc = 0.0
     if os.getenv("COLLECTIVE_MODE", "false").lower() != "true":
-        if not check_model_accuracy(model, test_loader):
-            print(f"[{vm_id}] Skipping full evaluation due to low accuracy.")
-            return
-
         print(f"[{vm_id}] Evaluating accuracy on full test set...")
         full_loader = DataLoader(TensorDataset(x_test_t, y_test_t), batch_size=1024, shuffle=False)
         test_preds = []
@@ -181,12 +178,13 @@ def main():
                     probs = torch.softmax(outputs, dim=1)
                     conf, pred = torch.max(probs, dim=1)
                     
+                    num_cpus = os.cpu_count() or 1
                     res = {
                         "prediction": int(pred.item()),
                         "confidence": float(conf.item()),
                         "accuracy": 1.0 if pred.item() == by[idx].item() else 0.0,
-                        "cpu_percent": psutil.cpu_percent(),
-                        "ram_percent": psutil.Process().memory_info().rss * 100 / (1024*1024*1024)
+                        "cpu_percent": round(psutil.cpu_percent() / num_cpus, 2),
+                        "ram_percent": round(psutil.virtual_memory().percent, 2)
                     }
                     
                     # 1. Save to shared volume
@@ -205,11 +203,13 @@ def main():
                             
                             payload = {
                                 "vm_id": vm_id,
+                                "timestamp" : time.time(),
                                 "technique": tech_id,
                                 "prediction": int(pred.item()),
                                 "confidence": float(conf.item()),
-                                "cpu_usage_pct": res["cpu_percent"],
-                                "ram_usage_mb": psutil.Process().memory_info().rss / (1024*1024),
+                                "inference_time_ms": float(dt),
+                                "cpu_percent": res["cpu_percent"],
+                                "ram_percent": res["ram_percent"],
                                 "specimen_id": count
                             }
                             client.publish("v1/devices/me/telemetry", json.dumps(payload))

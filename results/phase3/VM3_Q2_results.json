@@ -3,9 +3,9 @@
   "tech_id": "Q2",
   "tech_name": "Static PTQ",
   "accuracy": 0.9747853097021744,
-  "avg_latency_ms": 129.05330409998896,
-  "std_latency_ms": 107.00457312559801,
-  "avg_cpu_percent": 294.90999999999997,
-  "avg_ram_mb": 670.538671875,
+  "avg_latency_ms": 1.9243040999754157,
+  "std_latency_ms": 1.1341143495369337,
+  "avg_cpu_percent": 78.70700000000001,
+  "avg_ram_mb": 671.17578125,
   "model_path": "/app/results/optimization/Q2_model.pt"
 }

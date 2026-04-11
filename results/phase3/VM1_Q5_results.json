@@ -3,9 +3,9 @@
   "tech_id": "Q5",
   "tech_name": "Mixed Precision",
   "accuracy": 0.9743742006212315,
-  "avg_latency_ms": 69.83569169997281,
-  "std_latency_ms": 42.22188566525328,
-  "avg_cpu_percent": 259.07,
-  "avg_ram_mb": 673.04375,
+  "avg_latency_ms": 429.50782090001667,
+  "std_latency_ms": 285.25692814793194,
+  "avg_cpu_percent": 9.969999999999999,
+  "avg_ram_mb": 673.08125,
   "model_path": "/app/results/optimization/Q5_model.pt"
 }

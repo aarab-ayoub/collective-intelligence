@@ -87,10 +87,12 @@ def solve_collective(specimen_id):
                 "collective_class": int(final_class),
                 "collective_confidence": float(final_confidence),
                 "consensus_achieved": len(set(n['prediction'] for n in node_data.values())) == 1,
-                "revalidation_triggered": validation_needed
+                "revalidation_triggered": validation_needed,
+                "specimen_id": specimen_id
             }
             client.publish("v1/devices/me/telemetry", json.dumps(payload))
             client.disconnect()
+            print(f"[Aggregator] MQTT telemetry sent successfully")
         except Exception as e:
             print(f"[Aggregator] MQTT Error: {e}")
 

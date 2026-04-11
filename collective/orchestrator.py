@@ -9,12 +9,12 @@ CHAMPIONS = {
     "vm3": {"path": "/app/results/optimization/P3_model.pt", "id": "P3"},
 }
 
-# MQTT Tokens from ThingsBoard
+# MQTT Tokens from thingsboard
 MQTT_TOKENS = {
-    "vm1": "89zIOYT0QSCQ1vbakD38",
-    "vm2": "gwy8f6d4F2520MYqkLIs",
-    "vm3": "19gGiOf6en4ye9BBqDVF",
-    "aggregator": "LJprz2NRVe1H4NwkxEVq"
+    "vm1": "1jMwlPssQwqQCadP8Ou0",
+    "vm2": "Xf0wKF4nz0avdMryl8pz",
+    "vm3": "BpAxKQThBaNt49JF21oe",
+    "aggregator": "cybunz1V34rW5yMpl683"
 }
 
 def run_cmd(cmd):

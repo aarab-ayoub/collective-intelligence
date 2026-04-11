@@ -3,9 +3,9 @@
   "tech_id": "Q1",
   "tech_name": "Dynamic Quant",
   "accuracy": 0.9744655581947743,
-  "avg_latency_ms": 138.71275419992344,
-  "std_latency_ms": 64.657195140824,
-  "avg_cpu_percent": 44.97,
-  "avg_ram_mb": 670.434375,
+  "avg_latency_ms": 136.4088499999525,
+  "std_latency_ms": 221.54509758279542,
+  "avg_cpu_percent": 22.491,
+  "avg_ram_mb": 670.91796875,
   "model_path": "/app/results/optimization/Q1_model.pt"
 }
