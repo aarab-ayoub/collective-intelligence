@@ -57,11 +57,10 @@ def main():
     df.to_csv(csv_path, index=False)
     print(f"Saved CSV comparison to: {csv_path}")
     
-    # Generate Plots
-    plt.figure(figsize=(15, 6))
-    
+    # Generate Plots (one graph per file)
+
     # Plot 1: Size vs Accuracy
-    plt.subplot(1, 2, 1)
+    plt.figure(figsize=(8, 6))
     for _, row in df.iterrows():
         color = "red" if row['id'] == "B0" else ("blue" if row['id'].startswith("Q") else "green")
         marker = "*" if row['id'] == "B0" else "o"
@@ -74,9 +73,14 @@ def main():
     plt.title("Size vs Accuracy")
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.gca().invert_xaxis()
+    plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left')
+    plt.tight_layout()
+    size_plot_path = OPTIMIZATION_DIR / "optimization_size_vs_accuracy.png"
+    plt.savefig(size_plot_path, dpi=150, bbox_inches="tight")
+    plt.close()
     
     # Plot 2: Speed vs Accuracy
-    plt.subplot(1, 2, 2)
+    plt.figure(figsize=(8, 6))
     for _, row in df.iterrows():
         color = "red" if row['id'] == "B0" else ("blue" if row['id'].startswith("Q") else "green")
         marker = "*" if row['id'] == "B0" else "o"
@@ -89,13 +93,21 @@ def main():
     plt.title("Speed vs Accuracy")
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.gca().invert_xaxis()
-    
-    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left')
     plt.tight_layout()
-    
-    plot_path = OPTIMIZATION_DIR / "optimization_pareto_front.png"
-    plt.savefig(plot_path, dpi=150, bbox_inches="tight")
-    print(f"Saved Pareto plots to  : {plot_path}")
+    speed_plot_path = OPTIMIZATION_DIR / "optimization_speed_vs_accuracy.png"
+    plt.savefig(speed_plot_path, dpi=150, bbox_inches="tight")
+
+    # Keep legacy filename for compatibility with existing docs/references.
+    legacy_plot_path = OPTIMIZATION_DIR / "optimization_pareto_front.png"
+    plt.savefig(legacy_plot_path, dpi=150, bbox_inches="tight")
+    plt.close()
+
+    print(
+        "Saved optimization plots: "
+        f"{size_plot_path}, {speed_plot_path} "
+        f"(legacy: {legacy_plot_path})"
+    )
 
 if __name__ == "__main__":
     main()

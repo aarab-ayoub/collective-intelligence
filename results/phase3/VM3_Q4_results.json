@@ -3,9 +3,9 @@
   "tech_id": "Q4",
   "tech_name": "Weight-only FP16",
   "accuracy": 0.9743285218344601,
-  "avg_latency_ms": 0.8334251999258413,
-  "std_latency_ms": 0.7004853461037406,
-  "avg_cpu_percent": 80.728,
-  "avg_ram_mb": 673.3046875,
+  "avg_latency_ms": 0.4165542000919231,
+  "std_latency_ms": 0.039260435947902635,
+  "avg_cpu_percent": 85.044,
+  "avg_ram_mb": 672.39453125,
   "model_path": "/app/results/optimization/Q4_model.pt"
 }

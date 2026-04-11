@@ -3,9 +3,9 @@
   "tech_id": "Q3",
   "tech_name": "QAT",
   "accuracy": 0.9768865338936598,
-  "avg_latency_ms": 220.158337599878,
-  "std_latency_ms": 218.72361803714372,
-  "avg_cpu_percent": 15.297,
-  "avg_ram_mb": 670.371484375,
+  "avg_latency_ms": 60.01109589999487,
+  "std_latency_ms": 118.84325337345123,
+  "avg_cpu_percent": 34.437,
+  "avg_ram_mb": 669.75,
   "model_path": "/app/results/optimization/Q3_model.pt"
 }

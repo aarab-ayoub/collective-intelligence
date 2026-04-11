@@ -1,6 +1,7 @@
 import subprocess
 import os
 import time
+from pathlib import Path
 
 # Champions from Phase 4
 CHAMPIONS = {
@@ -11,11 +12,15 @@ CHAMPIONS = {
 
 # MQTT Tokens from thingsboard
 MQTT_TOKENS = {
-    "vm1": "1jMwlPssQwqQCadP8Ou0",
-    "vm2": "Xf0wKF4nz0avdMryl8pz",
-    "vm3": "BpAxKQThBaNt49JF21oe",
-    "aggregator": "cybunz1V34rW5yMpl683"
+    "vm1": "hl2C5Ocv4zuHVMIZgsCK",
+    "vm2": "j02rXzN2GWMMD8SxWVxf",
+    "vm3": "FJs28cvft4hHPuVaASpV",
+    "aggregator": "BPO8AoEhK8HApMiEgfCq"
 }
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+COMPOSE_FILE = PROJECT_ROOT / "environment" / "docker-compose.yml"
+RESULTS_DIR = PROJECT_ROOT / "results" / "phase5"
 
 def run_cmd(cmd):
     print(f"Exec: {cmd}")
@@ -25,18 +30,19 @@ def main():
     print(">>> Starting Phase 5: Collective Intelligence Hub...")
     
     # Cleanup old results
-    run_cmd("rm -rf results/phase5/*.json")
-    os.makedirs("results/phase5", exist_ok=True)
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    for json_file in RESULTS_DIR.glob("*.json"):
+        json_file.unlink()
     
     # 1. Final Build
-    run_cmd("docker compose -f environment/docker-compose.yml build aggregator")
+    run_cmd(f"docker compose -f {COMPOSE_FILE} build aggregator")
     
     # 2. Run the 3 champion nodes in COLLECTIVE mode
     # We use 'run' instead of 'up' to control environment variables easily
     processes = []
     for vm_id, info in CHAMPIONS.items():
         cmd = (
-            f"docker compose -f environment/docker-compose.yml run -d "
+            f"docker compose -f {COMPOSE_FILE} run -d "
             f"-e MODEL_PATH={info['path']} "
             f"-e TECH_ID={info['id']} "
             f"-e COLLECTIVE_MODE=true "
@@ -51,14 +57,14 @@ def main():
     # 3. Start the Aggregator
     print("Starting Aggregator...")
     agg_cmd = (
-        f"docker compose -f environment/docker-compose.yml run "
+        f"docker compose -f {COMPOSE_FILE} run "
         f"-e MQTT_HOST=thingsboard "
         f"-e MQTT_TOKEN={MQTT_TOKENS['aggregator']} "
         f"aggregator"
     )
     run_cmd(agg_cmd)
 
-    print("\nPhase 5 Evaluation Complete. Check results/phase5/collective_report.json")
+    print(f"\nPhase 5 Evaluation Complete. Check {RESULTS_DIR / 'collective_report.json'}")
 
 if __name__ == "__main__":
     main()

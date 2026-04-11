@@ -8,10 +8,12 @@ import os
 import time
 import json
 import glob
+from pathlib import Path
 import pandas as pd
 
-COMPOSE_FILE = "environment/docker-compose.yml"
-RESULTS_DIR = "results/phase3"
+PROJECT_ROOT = Path(__file__).resolve().parent
+COMPOSE_FILE = PROJECT_ROOT / "environment" / "docker-compose.yml"
+RESULTS_DIR = PROJECT_ROOT / "results" / "phase3"
 
 # All techniques to benchmark
 TECHNIQUES = [
@@ -58,7 +60,7 @@ def run_benchmark(vm_service, tech):
 def collect_results():
     """Read all per-run JSON files and merge into a single DataFrame."""
     rows = []
-    json_files = glob.glob(os.path.join(RESULTS_DIR, "*.json"))
+    json_files = glob.glob(os.path.join(str(RESULTS_DIR), "*.json"))
     for path in sorted(json_files):
         try:
             with open(path) as f:
@@ -84,7 +86,7 @@ def main():
     os.makedirs(RESULTS_DIR, exist_ok=True)
 
     # Clean up old per-run JSONs (keep the CSV)
-    for f in glob.glob(os.path.join(RESULTS_DIR, "VM*_results.json")):
+    for f in glob.glob(os.path.join(str(RESULTS_DIR), "VM*_results.json")):
         os.remove(f)
 
     print("=" * 60)
@@ -107,7 +109,7 @@ def main():
     print("  Collecting results...")
     df = collect_results()
     if df is not None:
-        out_csv = os.path.join(RESULTS_DIR, "phase3_full_matrix.csv")
+        out_csv = os.path.join(str(RESULTS_DIR), "phase3_full_matrix.csv")
         df.to_csv(out_csv, index=False)
         print(f"\n  ✓ Matrix saved → {out_csv}")
         print(f"\n{df[['vm_id','tech_id','accuracy','avg_latency_ms','avg_cpu_percent','avg_ram_mb']].to_string(index=False)}")

@@ -126,6 +126,7 @@ for epoch in range(1, EPOCHS + 1):
     model.train()
     train_loss = 0.0
     n_samples = 0
+    train_correct = 0
     for bx, by in train_loader:
         bx, by = bx.to(device), by.to(device)
         optimizer.zero_grad()
@@ -136,7 +137,9 @@ for epoch in range(1, EPOCHS + 1):
         optimizer.step()
         train_loss += loss.item() * bx.size(0)
         n_samples += bx.size(0)
+        train_correct += (logits.argmax(1) == by).sum().item()
     train_loss /= max(n_samples, 1)
+    train_acc = train_correct / max(n_samples, 1)
 
     # Validate
     model.eval()
@@ -161,6 +164,7 @@ for epoch in range(1, EPOCHS + 1):
     history.append({
         "epoch": epoch,
         "train_loss": float(train_loss),
+        "train_accuracy": float(train_acc),
         "val_loss": float(val_loss),
         "val_accuracy": float(val_acc),
         "val_macro_f1": float(val_f1),
@@ -262,38 +266,64 @@ with open(metrics_path, "w") as f:
     json.dump(metrics, f, indent=2)
 print(f"\nSaved metrics: {metrics_path}")
 
-# ─── Plots ───────────────────────────────────────────────────────────────────
-fig, axes = plt.subplots(1, 3, figsize=(18, 5))
-
-# Training curves
+# ─── Plots (one graph per file) ──────────────────────────────────────────────
 epochs_list = [h["epoch"] for h in history]
-axes[0].plot(epochs_list, [h["train_loss"] for h in history], "b-o", label="Train Loss", markersize=3)
-axes[0].plot(epochs_list, [h["val_loss"] for h in history], "r-o", label="Val Loss", markersize=3)
-axes[0].set_xlabel("Epoch"); axes[0].set_ylabel("Loss"); axes[0].set_title("Loss Curves")
-axes[0].legend(); axes[0].grid(True, alpha=0.3)
 
-axes[1].plot(epochs_list, [h["val_accuracy"] for h in history], "g-o", label="Val Accuracy", markersize=3)
-axes[1].plot(epochs_list, [h["val_macro_f1"] for h in history], "m-o", label="Val Macro F1", markersize=3)
-axes[1].axhline(y=0.85, color="gray", linestyle="--", alpha=0.5, label="Acc target (85%)")
-axes[1].axhline(y=0.75, color="orange", linestyle="--", alpha=0.5, label="F1 target (0.75)")
-axes[1].set_xlabel("Epoch"); axes[1].set_ylabel("Score"); axes[1].set_title("Accuracy & F1")
-axes[1].legend(); axes[1].grid(True, alpha=0.3)
+# 1) Loss curves
+plt.figure(figsize=(8, 5))
+plt.plot(epochs_list, [h["train_loss"] for h in history], "b-o", label="Train Loss", markersize=3)
+plt.plot(epochs_list, [h["val_loss"] for h in history], "r-o", label="Val Loss", markersize=3)
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.title("Loss Curves")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+loss_plot_path = PLOTS_DIR / "baseline_loss_curves.png"
+plt.savefig(loss_plot_path, dpi=150, bbox_inches="tight")
+plt.close()
 
-# Confusion matrix
-im = axes[2].imshow(cm, cmap="Blues")
-axes[2].set_xticks(range(NUM_CLASSES)); axes[2].set_xticklabels(LABELS)
-axes[2].set_yticks(range(NUM_CLASSES)); axes[2].set_yticklabels(LABELS)
-axes[2].set_xlabel("Predicted"); axes[2].set_ylabel("True"); axes[2].set_title("Confusion Matrix")
+# 2) Accuracy graph (train evolution + final test accuracy reference)
+plt.figure(figsize=(8, 5))
+plt.plot(epochs_list, [h["train_accuracy"] for h in history], "g-o", label="Train Accuracy", markersize=3)
+plt.axhline(y=test_acc, color="purple", linestyle="--", alpha=0.8, label=f"Test Accuracy ({test_acc:.4f})")
+plt.scatter([epochs_list[-1]], [test_acc], color="purple", s=45)
+plt.axhline(y=0.85, color="gray", linestyle="--", alpha=0.5, label="Acc target (85%)")
+plt.xlabel("Epoch")
+plt.ylabel("Accuracy")
+plt.title("Train Accuracy vs Test Accuracy")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+acc_plot_path = PLOTS_DIR / "baseline_accuracy_evolution.png"
+plt.savefig(acc_plot_path, dpi=150, bbox_inches="tight")
+# Keep legacy filename for compatibility with existing reports.
+legacy_plot_path = PLOTS_DIR / "baseline_cnn_plots.png"
+plt.savefig(legacy_plot_path, dpi=150, bbox_inches="tight")
+plt.close()
+
+# 3) Confusion matrix
+plt.figure(figsize=(6.5, 5.5))
+im = plt.imshow(cm, cmap="Blues")
+plt.xticks(range(NUM_CLASSES), LABELS)
+plt.yticks(range(NUM_CLASSES), LABELS)
+plt.xlabel("Predicted")
+plt.ylabel("True")
+plt.title("Confusion Matrix")
 for i in range(NUM_CLASSES):
     for j in range(NUM_CLASSES):
         color = "white" if cm[i, j] > cm.max() / 2 else "black"
-        axes[2].text(j, i, str(cm[i, j]), ha="center", va="center", color=color, fontsize=8)
-plt.colorbar(im, ax=axes[2])
-
+        plt.text(j, i, str(cm[i, j]), ha="center", va="center", color=color, fontsize=8)
+plt.colorbar(im)
 plt.tight_layout()
-plot_path = PLOTS_DIR / "baseline_cnn_plots.png"
-plt.savefig(plot_path, dpi=150, bbox_inches="tight")
+cm_plot_path = PLOTS_DIR / "baseline_confusion_matrix.png"
+plt.savefig(cm_plot_path, dpi=150, bbox_inches="tight")
 plt.close()
-print(f"Saved plots: {plot_path}")
+
+print(
+    "Saved plots: "
+    f"{loss_plot_path}, {acc_plot_path}, {cm_plot_path} "
+    f"(legacy: {legacy_plot_path})"
+)
 
 print("\n✅ Phase 1 complete!")

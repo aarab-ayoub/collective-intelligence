@@ -1,1 +1,1 @@
-{"prediction": 0, "confidence": 0.9916025996208191, "accuracy": 1.0, "cpu_percent": 66.7, "ram_percent": 65.82489013671875}
+{"vm_id": "VM2", "timestamp": "2026-04-11T14:09:37Z", "technique": "Pruning structure", "prediction": "N", "prediction_class": 0, "confidence": 0.9916025996208191, "inference_time_ms": 2.9664580001735885, "cpu_usage_pct": 0.0, "ram_usage_mb": 673.66, "patient_id": "P-2026-002", "accuracy": 1.0, "cpu_percent": 0.0, "ram_percent": 41.7, "specimen_id": 2, "tech_id": "P2"}

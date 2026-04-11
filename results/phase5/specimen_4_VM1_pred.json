@@ -1,1 +1,1 @@
-{"prediction": 0, "confidence": 0.9964516162872314, "accuracy": 1.0, "cpu_percent": 7.2, "ram_percent": 65.65361022949219}
+{"vm_id": "VM1", "timestamp": "2026-04-11T14:09:42Z", "technique": "Quantification statique PTQ", "prediction": "N", "prediction_class": 0, "confidence": 0.9964516162872314, "inference_time_ms": 596.6664590000619, "cpu_usage_pct": 0.0, "ram_usage_mb": 671.44, "patient_id": "P-2026-004", "accuracy": 1.0, "cpu_percent": 0.0, "ram_percent": 32.1, "specimen_id": 4, "tech_id": "Q2"}

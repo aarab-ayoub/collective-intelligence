@@ -1,1 +1,1 @@
-{"prediction": 0, "confidence": 0.9999710321426392, "accuracy": 1.0, "cpu_percent": 66.7, "ram_percent": 66.26472473144531}
+{"vm_id": "VM3", "timestamp": "2026-04-11T14:09:37Z", "technique": "Pruning magnitude globale", "prediction": "N", "prediction_class": 0, "confidence": 0.9999710321426392, "inference_time_ms": 8.212667000407237, "cpu_usage_pct": 0.0, "ram_usage_mb": 677.62, "patient_id": "P-2026-005", "accuracy": 1.0, "cpu_percent": 0.0, "ram_percent": 41.7, "specimen_id": 5, "tech_id": "P3"}

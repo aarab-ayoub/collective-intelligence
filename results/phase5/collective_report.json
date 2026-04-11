@@ -6,25 +6,55 @@
         "validation_needed": false,
         "nodes": {
             "VM2": {
-                "prediction": 0,
+                "vm_id": "VM2",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning structure",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9994134902954102,
+                "inference_time_ms": 1.6727499996704864,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 673.03,
+                "patient_id": "P-2026-000",
                 "accuracy": 1.0,
-                "cpu_percent": 28.3,
-                "ram_percent": 65.77606201171875
+                "cpu_percent": 0.0,
+                "ram_percent": 41.6,
+                "specimen_id": 0,
+                "tech_id": "P2"
             },
             "VM3": {
-                "prediction": 0,
+                "vm_id": "VM3",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning magnitude globale",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9999700784683228,
+                "inference_time_ms": 5.247041000075114,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 677.0,
+                "patient_id": "P-2026-000",
                 "accuracy": 1.0,
-                "cpu_percent": 32.1,
-                "ram_percent": 66.21589660644531
+                "cpu_percent": 0.0,
+                "ram_percent": 41.6,
+                "specimen_id": 0,
+                "tech_id": "P3"
             },
             "VM1": {
-                "prediction": 0,
+                "vm_id": "VM1",
+                "timestamp": "2026-04-11T14:09:40Z",
+                "technique": "Quantification statique PTQ",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9997954964637756,
+                "inference_time_ms": 603.8042090003728,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 670.52,
+                "patient_id": "P-2026-000",
                 "accuracy": 1.0,
-                "cpu_percent": 12.6,
-                "ram_percent": 65.58761596679688
+                "cpu_percent": 0.0,
+                "ram_percent": 32.1,
+                "specimen_id": 0,
+                "tech_id": "Q2"
             }
         }
     },
@@ -35,25 +65,55 @@
         "validation_needed": false,
         "nodes": {
             "VM2": {
-                "prediction": 0,
+                "vm_id": "VM2",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning structure",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9985836744308472,
+                "inference_time_ms": 85.77366700001221,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 673.66,
+                "patient_id": "P-2026-001",
                 "accuracy": 1.0,
-                "cpu_percent": 55.8,
-                "ram_percent": 65.82489013671875
+                "cpu_percent": 0.0,
+                "ram_percent": 41.7,
+                "specimen_id": 1,
+                "tech_id": "P2"
             },
             "VM3": {
-                "prediction": 0,
+                "vm_id": "VM3",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning magnitude globale",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9996621608734131,
+                "inference_time_ms": 5.312583999966591,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 677.62,
+                "patient_id": "P-2026-001",
                 "accuracy": 1.0,
-                "cpu_percent": 28.6,
-                "ram_percent": 66.25251770019531
+                "cpu_percent": 0.0,
+                "ram_percent": 41.6,
+                "specimen_id": 1,
+                "tech_id": "P3"
             },
             "VM1": {
-                "prediction": 0,
+                "vm_id": "VM1",
+                "timestamp": "2026-04-11T14:09:41Z",
+                "technique": "Quantification statique PTQ",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9977680444717407,
+                "inference_time_ms": 198.5508339998887,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 671.58,
+                "patient_id": "P-2026-001",
                 "accuracy": 1.0,
-                "cpu_percent": 8.6,
-                "ram_percent": 65.66658020019531
+                "cpu_percent": 0.0,
+                "ram_percent": 32.1,
+                "specimen_id": 1,
+                "tech_id": "Q2"
             }
         }
     },
@@ -64,25 +124,55 @@
         "validation_needed": false,
         "nodes": {
             "VM1": {
-                "prediction": 0,
+                "vm_id": "VM1",
+                "timestamp": "2026-04-11T14:09:41Z",
+                "technique": "Quantification statique PTQ",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9849633574485779,
+                "inference_time_ms": 98.13866700005747,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 671.7,
+                "patient_id": "P-2026-002",
                 "accuracy": 1.0,
-                "cpu_percent": 2.1,
-                "ram_percent": 65.66658020019531
+                "cpu_percent": 0.0,
+                "ram_percent": 32.1,
+                "specimen_id": 2,
+                "tech_id": "Q2"
             },
             "VM2": {
-                "prediction": 0,
+                "vm_id": "VM2",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning structure",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9916025996208191,
+                "inference_time_ms": 2.9664580001735885,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 673.66,
+                "patient_id": "P-2026-002",
                 "accuracy": 1.0,
-                "cpu_percent": 66.7,
-                "ram_percent": 65.82489013671875
+                "cpu_percent": 0.0,
+                "ram_percent": 41.7,
+                "specimen_id": 2,
+                "tech_id": "P2"
             },
             "VM3": {
-                "prediction": 0,
+                "vm_id": "VM3",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning magnitude globale",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.995641827583313,
+                "inference_time_ms": 3.5753329998442496,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 677.62,
+                "patient_id": "P-2026-002",
                 "accuracy": 1.0,
-                "cpu_percent": 42.6,
-                "ram_percent": 66.25251770019531
+                "cpu_percent": 0.0,
+                "ram_percent": 41.6,
+                "specimen_id": 2,
+                "tech_id": "P3"
             }
         }
     },
@@ -92,26 +182,56 @@
         "confidence": 0.998564492290261,
         "validation_needed": false,
         "nodes": {
-            "VM1": {
-                "prediction": 0,
-                "confidence": 0.9988960027694702,
-                "accuracy": 1.0,
-                "cpu_percent": 23.1,
-                "ram_percent": 65.66658020019531
-            },
             "VM2": {
-                "prediction": 0,
+                "vm_id": "VM2",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning structure",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9972489476203918,
+                "inference_time_ms": 5.067707999842241,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 673.66,
+                "patient_id": "P-2026-003",
                 "accuracy": 1.0,
-                "cpu_percent": 48.0,
-                "ram_percent": 65.82489013671875
+                "cpu_percent": 0.0,
+                "ram_percent": 41.7,
+                "specimen_id": 3,
+                "tech_id": "P2"
             },
             "VM3": {
-                "prediction": 0,
+                "vm_id": "VM3",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning magnitude globale",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9995445609092712,
+                "inference_time_ms": 0.8775839996815193,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 677.62,
+                "patient_id": "P-2026-003",
                 "accuracy": 1.0,
-                "cpu_percent": 60.0,
-                "ram_percent": 66.26472473144531
+                "cpu_percent": 0.0,
+                "ram_percent": 41.6,
+                "specimen_id": 3,
+                "tech_id": "P3"
+            },
+            "VM1": {
+                "vm_id": "VM1",
+                "timestamp": "2026-04-11T14:09:41Z",
+                "technique": "Quantification statique PTQ",
+                "prediction": "N",
+                "prediction_class": 0,
+                "confidence": 0.9988960027694702,
+                "inference_time_ms": 298.84850000007646,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 671.53,
+                "patient_id": "P-2026-003",
+                "accuracy": 1.0,
+                "cpu_percent": 0.0,
+                "ram_percent": 32.1,
+                "specimen_id": 3,
+                "tech_id": "Q2"
             }
         }
     },
@@ -122,25 +242,55 @@
         "validation_needed": false,
         "nodes": {
             "VM2": {
-                "prediction": 0,
+                "vm_id": "VM2",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning structure",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9882262349128723,
+                "inference_time_ms": 1.5783750000082364,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 673.66,
+                "patient_id": "P-2026-004",
                 "accuracy": 1.0,
-                "cpu_percent": 50.0,
-                "ram_percent": 65.82489013671875
+                "cpu_percent": 0.0,
+                "ram_percent": 41.7,
+                "specimen_id": 4,
+                "tech_id": "P2"
             },
             "VM3": {
-                "prediction": 0,
+                "vm_id": "VM3",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning magnitude globale",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9993222951889038,
+                "inference_time_ms": 70.68550000030882,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 677.62,
+                "patient_id": "P-2026-004",
                 "accuracy": 1.0,
-                "cpu_percent": 60.0,
-                "ram_percent": 66.26472473144531
+                "cpu_percent": 0.0,
+                "ram_percent": 41.7,
+                "specimen_id": 4,
+                "tech_id": "P3"
             },
             "VM1": {
-                "prediction": 0,
+                "vm_id": "VM1",
+                "timestamp": "2026-04-11T14:09:42Z",
+                "technique": "Quantification statique PTQ",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9964516162872314,
+                "inference_time_ms": 596.6664590000619,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 671.44,
+                "patient_id": "P-2026-004",
                 "accuracy": 1.0,
-                "cpu_percent": 7.2,
-                "ram_percent": 65.65361022949219
+                "cpu_percent": 0.0,
+                "ram_percent": 32.1,
+                "specimen_id": 4,
+                "tech_id": "Q2"
             }
         }
     },
@@ -151,25 +301,55 @@
         "validation_needed": false,
         "nodes": {
             "VM2": {
-                "prediction": 0,
+                "vm_id": "VM2",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning structure",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.999478280544281,
+                "inference_time_ms": 85.62162499993065,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 673.66,
+                "patient_id": "P-2026-005",
                 "accuracy": 1.0,
-                "cpu_percent": 40.0,
-                "ram_percent": 65.80657958984375
+                "cpu_percent": 0.0,
+                "ram_percent": 41.7,
+                "specimen_id": 5,
+                "tech_id": "P2"
             },
             "VM3": {
-                "prediction": 0,
+                "vm_id": "VM3",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning magnitude globale",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9999710321426392,
+                "inference_time_ms": 8.212667000407237,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 677.62,
+                "patient_id": "P-2026-005",
                 "accuracy": 1.0,
-                "cpu_percent": 66.7,
-                "ram_percent": 66.26472473144531
+                "cpu_percent": 0.0,
+                "ram_percent": 41.7,
+                "specimen_id": 5,
+                "tech_id": "P3"
             },
             "VM1": {
-                "prediction": 0,
+                "vm_id": "VM1",
+                "timestamp": "2026-04-11T14:09:42Z",
+                "technique": "Quantification statique PTQ",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9998956918716431,
+                "inference_time_ms": 493.145166999966,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 671.56,
+                "patient_id": "P-2026-005",
                 "accuracy": 1.0,
-                "cpu_percent": 6.0,
-                "ram_percent": 65.66581726074219
+                "cpu_percent": 0.0,
+                "ram_percent": 32.1,
+                "specimen_id": 5,
+                "tech_id": "Q2"
             }
         }
     },
@@ -179,26 +359,56 @@
         "confidence": 0.9982504541543549,
         "validation_needed": false,
         "nodes": {
-            "VM2": {
-                "prediction": 0,
-                "confidence": 0.998121440410614,
+            "VM1": {
+                "vm_id": "VM1",
+                "timestamp": "2026-04-11T14:09:42Z",
+                "technique": "Quantification statique PTQ",
+                "prediction": "N",
+                "prediction_class": 0,
+                "confidence": 0.9974173307418823,
+                "inference_time_ms": 97.98116699994353,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 671.35,
+                "patient_id": "P-2026-006",
                 "accuracy": 1.0,
-                "cpu_percent": 60.0,
-                "ram_percent": 65.80657958984375
+                "cpu_percent": 0.0,
+                "ram_percent": 32.1,
+                "specimen_id": 6,
+                "tech_id": "Q2"
+            },
+            "VM2": {
+                "vm_id": "VM2",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning structure",
+                "prediction": "N",
+                "prediction_class": 0,
+                "confidence": 0.998121440410614,
+                "inference_time_ms": 3.37116699984108,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 673.66,
+                "patient_id": "P-2026-006",
+                "accuracy": 1.0,
+                "cpu_percent": 0.0,
+                "ram_percent": 41.7,
+                "specimen_id": 6,
+                "tech_id": "P2"
             },
             "VM3": {
-                "prediction": 0,
+                "vm_id": "VM3",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning magnitude globale",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9992057681083679,
+                "inference_time_ms": 6.980208000186394,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 677.62,
+                "patient_id": "P-2026-006",
                 "accuracy": 1.0,
-                "cpu_percent": 50.0,
-                "ram_percent": 66.26472473144531
-            },
-            "VM1": {
-                "prediction": 0,
-                "confidence": 0.9974173307418823,
-                "accuracy": 1.0,
-                "cpu_percent": 6.3,
-                "ram_percent": 65.66925048828125
+                "cpu_percent": 0.0,
+                "ram_percent": 41.7,
+                "specimen_id": 6,
+                "tech_id": "P3"
             }
         }
     },
@@ -208,26 +418,56 @@
         "confidence": 0.9307491219642583,
         "validation_needed": false,
         "nodes": {
-            "VM1": {
-                "prediction": 0,
-                "confidence": 0.860742449760437,
-                "accuracy": 1.0,
-                "cpu_percent": 33.3,
-                "ram_percent": 65.66925048828125
-            },
             "VM2": {
-                "prediction": 0,
+                "vm_id": "VM2",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning structure",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9689823389053345,
+                "inference_time_ms": 2.6195000000370783,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 673.66,
+                "patient_id": "P-2026-007",
                 "accuracy": 1.0,
-                "cpu_percent": 50.0,
-                "ram_percent": 65.80657958984375
+                "cpu_percent": 0.0,
+                "ram_percent": 41.7,
+                "specimen_id": 7,
+                "tech_id": "P2"
             },
             "VM3": {
-                "prediction": 0,
+                "vm_id": "VM3",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning magnitude globale",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9621890783309937,
+                "inference_time_ms": 6.928124999831198,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 677.62,
+                "patient_id": "P-2026-007",
                 "accuracy": 1.0,
-                "cpu_percent": 25.4,
-                "ram_percent": 66.26472473144531
+                "cpu_percent": 0.0,
+                "ram_percent": 41.7,
+                "specimen_id": 7,
+                "tech_id": "P3"
+            },
+            "VM1": {
+                "vm_id": "VM1",
+                "timestamp": "2026-04-11T14:09:42Z",
+                "technique": "Quantification statique PTQ",
+                "prediction": "N",
+                "prediction_class": 0,
+                "confidence": 0.860742449760437,
+                "inference_time_ms": 199.09441600020727,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 671.35,
+                "patient_id": "P-2026-007",
+                "accuracy": 1.0,
+                "cpu_percent": 0.0,
+                "ram_percent": 32.1,
+                "specimen_id": 7,
+                "tech_id": "Q2"
             }
         }
     },
@@ -238,25 +478,55 @@
         "validation_needed": false,
         "nodes": {
             "VM1": {
-                "prediction": 0,
+                "vm_id": "VM1",
+                "timestamp": "2026-04-11T14:09:42Z",
+                "technique": "Quantification statique PTQ",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9817453026771545,
+                "inference_time_ms": 9.02512500033481,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 671.47,
+                "patient_id": "P-2026-008",
                 "accuracy": 1.0,
-                "cpu_percent": 4.3,
-                "ram_percent": 65.66925048828125
+                "cpu_percent": 0.0,
+                "ram_percent": 32.1,
+                "specimen_id": 8,
+                "tech_id": "Q2"
             },
             "VM2": {
-                "prediction": 0,
+                "vm_id": "VM2",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning structure",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9957821369171143,
+                "inference_time_ms": 93.28620800033605,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 673.27,
+                "patient_id": "P-2026-008",
                 "accuracy": 1.0,
-                "cpu_percent": 28.7,
-                "ram_percent": 65.80657958984375
+                "cpu_percent": 0.0,
+                "ram_percent": 42.2,
+                "specimen_id": 8,
+                "tech_id": "P2"
             },
             "VM3": {
-                "prediction": 0,
+                "vm_id": "VM3",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning magnitude globale",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9982864260673523,
+                "inference_time_ms": 70.18670799971005,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 677.62,
+                "patient_id": "P-2026-008",
                 "accuracy": 1.0,
-                "cpu_percent": 66.7,
-                "ram_percent": 66.26472473144531
+                "cpu_percent": 0.0,
+                "ram_percent": 41.8,
+                "specimen_id": 8,
+                "tech_id": "P3"
             }
         }
     },
@@ -266,26 +536,56 @@
         "confidence": 0.9995561806094906,
         "validation_needed": false,
         "nodes": {
-            "VM1": {
-                "prediction": 0,
-                "confidence": 0.9994065761566162,
-                "accuracy": 1.0,
-                "cpu_percent": 50.0,
-                "ram_percent": 65.66925048828125
-            },
             "VM2": {
-                "prediction": 0,
+                "vm_id": "VM2",
+                "timestamp": "2026-04-11T14:09:38Z",
+                "technique": "Pruning structure",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9992978572845459,
+                "inference_time_ms": 2.8742499998770654,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 673.27,
+                "patient_id": "P-2026-009",
                 "accuracy": 1.0,
-                "cpu_percent": 66.7,
-                "ram_percent": 65.80657958984375
+                "cpu_percent": 0.0,
+                "ram_percent": 42.2,
+                "specimen_id": 9,
+                "tech_id": "P2"
             },
             "VM3": {
-                "prediction": 0,
+                "vm_id": "VM3",
+                "timestamp": "2026-04-11T14:09:37Z",
+                "technique": "Pruning magnitude globale",
+                "prediction": "N",
+                "prediction_class": 0,
                 "confidence": 0.9999617338180542,
+                "inference_time_ms": 5.441333000362647,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 677.62,
+                "patient_id": "P-2026-009",
                 "accuracy": 1.0,
-                "cpu_percent": 83.3,
-                "ram_percent": 66.26472473144531
+                "cpu_percent": 0.0,
+                "ram_percent": 41.8,
+                "specimen_id": 9,
+                "tech_id": "P3"
+            },
+            "VM1": {
+                "vm_id": "VM1",
+                "timestamp": "2026-04-11T14:09:43Z",
+                "technique": "Quantification statique PTQ",
+                "prediction": "N",
+                "prediction_class": 0,
+                "confidence": 0.9994065761566162,
+                "inference_time_ms": 290.87529199978235,
+                "cpu_usage_pct": 0.0,
+                "ram_usage_mb": 671.26,
+                "patient_id": "P-2026-009",
+                "accuracy": 1.0,
+                "cpu_percent": 0.0,
+                "ram_percent": 32.1,
+                "specimen_id": 9,
+                "tech_id": "Q2"
             }
         }
     }

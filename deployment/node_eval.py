@@ -7,12 +7,48 @@ import psutil
 import pandas as pd
 import numpy as np
 from pathlib import Path
+from datetime import datetime, timezone
 
 # Add /app to path for modular imports
 sys.path.append("/app")
 
 from utils.eval_utils import evaluate_model
 from utils.data_loader import get_test_loader
+
+
+TECHNIQUE_LABELS = {
+    "B0": "Baseline",
+    "Q1": "Quantification dynamique",
+    "Q2": "Quantification statique PTQ",
+    "Q3": "Quantification QAT",
+    "Q4": "Poids FP16",
+    "Q5": "Precision mixte",
+    "P1": "Pruning non structure",
+    "P2": "Pruning structure",
+    "P3": "Pruning magnitude globale",
+}
+
+# MIT-BIH class labels (default). Can be overridden via CLASS_LABELS env var.
+DEFAULT_CLASS_LABELS = ["N", "S", "V", "F", "Q"]
+
+
+def _get_class_labels():
+    raw = os.getenv("CLASS_LABELS", "")
+    if raw.strip():
+        labels = [x.strip() for x in raw.split(",") if x.strip()]
+        return labels if labels else DEFAULT_CLASS_LABELS
+    return DEFAULT_CLASS_LABELS
+
+
+def _prediction_label(pred_idx, labels):
+    if 0 <= pred_idx < len(labels):
+        return labels[pred_idx]
+    return str(pred_idx)
+
+
+def _patient_id(specimen_id):
+    year = datetime.now(timezone.utc).year
+    return f"P-{year}-{specimen_id:03d}"
 
 def measure_resources(interval=0.1):
     process = psutil.Process(os.getpid())
@@ -26,6 +62,7 @@ def main():
     tech_name = os.getenv("TECH_NAME")
     vm_id = os.getenv("VM_ID", "UNKNOWN")
     data_path = os.getenv("DATA_PATH", "/mitbih/mitbih_test.csv")
+    class_labels = _get_class_labels()
     
     if not model_path or not tech_id:
         print("MODEL_PATH and TECH_ID must be set.")
@@ -174,17 +211,39 @@ def main():
                 for idx in range(len(bx)):
                     if count >= num_samples: break
                     sample = bx[idx:idx+1]
+
+                    t0 = time.perf_counter()
                     outputs = model(sample)
+                    inference_ms = (time.perf_counter() - t0) * 1000.0
                     probs = torch.softmax(outputs, dim=1)
                     conf, pred = torch.max(probs, dim=1)
+                    pred_idx = int(pred.item())
+                    pred_label = _prediction_label(pred_idx, class_labels)
+                    technique_label = TECHNIQUE_LABELS.get(tech_id, tech_name or tech_id)
+                    timestamp_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
                     
                     num_cpus = os.cpu_count() or 1
+                    process = psutil.Process(os.getpid())
+                    cpu_usage_pct = round(process.cpu_percent(interval=None) / num_cpus, 2)
+                    ram_usage_mb = round(process.memory_info().rss / (1024 * 1024), 2)
+                    ram_usage_pct = round(psutil.virtual_memory().percent, 2)
                     res = {
-                        "prediction": int(pred.item()),
+                        "vm_id": vm_id,
+                        "timestamp": timestamp_iso,
+                        "technique": technique_label,
+                        "prediction": pred_label,
+                        "prediction_class": pred_idx,
                         "confidence": float(conf.item()),
-                        "accuracy": 1.0 if pred.item() == by[idx].item() else 0.0,
-                        "cpu_percent": round(psutil.cpu_percent() / num_cpus, 2),
-                        "ram_percent": round(psutil.virtual_memory().percent, 2)
+                        "inference_time_ms": float(inference_ms),
+                        "cpu_usage_pct": cpu_usage_pct,
+                        "ram_usage_mb": ram_usage_mb,
+                        "patient_id": _patient_id(count),
+                        # Backward compatibility with existing aggregator/report code.
+                        "accuracy": 1.0 if pred_idx == by[idx].item() else 0.0,
+                        "cpu_percent": cpu_usage_pct,
+                        "ram_percent": ram_usage_pct,
+                        "specimen_id": count,
+                        "tech_id": tech_id
                     }
                     
                     # 1. Save to shared volume
@@ -203,14 +262,20 @@ def main():
                             
                             payload = {
                                 "vm_id": vm_id,
-                                "timestamp" : time.time(),
-                                "technique": tech_id,
-                                "prediction": int(pred.item()),
+                                "timestamp": timestamp_iso,
+                                "technique": technique_label,
+                                "prediction": pred_label,
+                                "prediction_class": pred_idx,
                                 "confidence": float(conf.item()),
-                                "inference_time_ms": float(dt),
+                                "inference_time_ms": float(inference_ms),
+                                "cpu_usage_pct": cpu_usage_pct,
+                                "ram_usage_mb": ram_usage_mb,
+                                "patient_id": res["patient_id"],
+                                # Keep legacy keys to avoid breaking dashboards/rules.
                                 "cpu_percent": res["cpu_percent"],
                                 "ram_percent": res["ram_percent"],
-                                "specimen_id": count
+                                "specimen_id": count,
+                                "tech_id": tech_id
                             }
                             client.publish("v1/devices/me/telemetry", json.dumps(payload))
                             client.disconnect()

@@ -3,9 +3,9 @@
   "tech_id": "P2",
   "tech_name": "Structured Pruning",
   "accuracy": 0.9772976429746026,
-  "avg_latency_ms": 126.5554957999484,
-  "std_latency_ms": 139.67191264390988,
-  "avg_cpu_percent": 15.703,
-  "avg_ram_mb": 672.968359375,
+  "avg_latency_ms": 2.8308707998803584,
+  "std_latency_ms": 7.673676204900893,
+  "avg_cpu_percent": 121.749,
+  "avg_ram_mb": 671.96875,
   "model_path": "/app/results/optimization/P2_model.pt"
 }

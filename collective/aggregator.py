@@ -15,6 +15,23 @@ NODES = {
 SHARED_DIR = os.getenv("SHARED_DIR", "/app/results/phase5")
 CONFIDENCE_THRESHOLD = 0.70
 
+
+def _prediction_class(data):
+    if "prediction_class" in data:
+        return int(data["prediction_class"])
+    return int(data.get("prediction", 0))
+
+
+def _cpu_usage_pct(data):
+    if "cpu_usage_pct" in data:
+        return float(data["cpu_usage_pct"])
+    return float(data.get("cpu_percent", 0))
+
+
+def _ram_usage_pct(data):
+    # New schema reports RAM in MB; overload checks still use percentage when available.
+    return float(data.get("ram_percent", 0))
+
 def wait_for_predictions(specimen_id):
     """Wait for all nodes to output their prediction for a given specimen."""
     preds = {}
@@ -44,8 +61,10 @@ def solve_collective(specimen_id):
 
     # 1. Check Load Balancing / Resource Overload
     for node_id, data in node_data.items():
-        if data.get('cpu_percent', 0) > 85 or data.get('ram_percent', 0) > 90:
-            print(f"[Aggregator] WARNING: {node_id} is overloaded! CPU: {data['cpu_percent']}%, RAM: {data['ram_percent']}%")
+        cpu_pct = _cpu_usage_pct(data)
+        ram_pct = _ram_usage_pct(data)
+        if cpu_pct > 85 or ram_pct > 90:
+            print(f"[Aggregator] WARNING: {node_id} is overloaded! CPU: {cpu_pct}%, RAM: {ram_pct}%")
             # In a real system, the orchestrator would redirect. Here we just log.
 
     # 2. Weighted Voting & Confidence
@@ -53,7 +72,7 @@ def solve_collective(specimen_id):
     weighted_votes = {}
     
     for node_id, data in node_data.items():
-        pred_class = data['prediction']
+        pred_class = _prediction_class(data)
         confidence = data['confidence']
         weight = NODES[node_id]['weight']
         
@@ -86,7 +105,7 @@ def solve_collective(specimen_id):
             payload = {
                 "collective_class": int(final_class),
                 "collective_confidence": float(final_confidence),
-                "consensus_achieved": len(set(n['prediction'] for n in node_data.values())) == 1,
+                "consensus_achieved": len(set(_prediction_class(n) for n in node_data.values())) == 1,
                 "revalidation_triggered": validation_needed,
                 "specimen_id": specimen_id
             }
@@ -123,7 +142,7 @@ def main():
     if results:
         consensus_count = 0
         for r in results:
-            unique_preds = set(n['prediction'] for n in r['nodes'].values())
+            unique_preds = set(_prediction_class(n) for n in r['nodes'].values())
             if len(unique_preds) == 1:
                 consensus_count += 1
         
