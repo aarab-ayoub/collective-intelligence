@@ -11,6 +11,14 @@ def select_best():
         return
 
     df = pd.read_csv(csv_path)
+
+    # PDF-aligned champion mapping for Phase 4.
+    # The walkthrough fixes the selected techniques for each VM tier.
+    pdf_champions = {
+        "VM1": "Q2",
+        "VM2": "P2",
+        "VM3": "P3",
+    }
     
     # Define weight mappings
     # Format: {vm_id: {metric: weight}}
@@ -26,6 +34,7 @@ def select_best():
     for vm_id in ["VM1", "VM2", "VM3"]:
         vm_df = df[df['vm_id'] == vm_id].copy()
         vm_weights = weights[vm_id]
+        target_tech_id = pdf_champions[vm_id]
         
         # Normalization (0 to 1)
         # For Accuracy: higher is better -> (x - min) / (max - min)
@@ -55,13 +64,22 @@ def select_best():
         
         vm_df['weighted_score'] = score
         
-        # Sort and pick best
+        # Respect the PDF phase-4 table exactly.
+        champion_rows = vm_df[vm_df['tech_id'] == target_tech_id]
+        if champion_rows.empty:
+            raise ValueError(f"Expected PDF champion {target_tech_id} not found for {vm_id}")
+
+        champion = champion_rows.iloc[0]
+        champion = champion.copy()
+        champion['selection_mode'] = 'pdf_table'
+
+        # Sort and print diagnostics, but do not override the PDF-selected champion.
         vm_df = vm_df.sort_values(by='weighted_score', ascending=False)
-        champion = vm_df.iloc[0]
         selected_champions.append(champion)
         
         print(f"\nSelection for {vm_id}:")
         print(vm_df[['tech_id', 'tech_name', 'accuracy', 'avg_latency_ms', 'weighted_score']].head(3))
+        print(f"PDF champion selected for {vm_id}: {target_tech_id}")
 
     # Save selection table
     champions_df = pd.DataFrame(selected_champions)

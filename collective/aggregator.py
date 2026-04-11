@@ -29,8 +29,50 @@ def _cpu_usage_pct(data):
 
 
 def _ram_usage_pct(data):
-    # New schema reports RAM in MB; overload checks still use percentage when available.
-    return float(data.get("ram_percent", 0))
+    if "ram_percent" in data:
+        return float(data["ram_percent"])
+    ram_mb = float(data.get("ram_usage_mb", 0))
+    ram_cap_mb = float(data.get("ram_capacity_mb", 0))
+    if ram_cap_mb > 0:
+        return (ram_mb / ram_cap_mb) * 100.0
+    return 0.0
+
+
+def _scaled_int(value, factor=100):
+    """Convert float telemetry to integer-friendly values for bar-chart widgets."""
+    return int(round(float(value) * factor))
+
+
+def _flatten_node_payload(node_data):
+    """Flatten per-node telemetry so a single aggregator message can drive dashboards."""
+    flat = {}
+    for node_id, data in node_data.items():
+        prefix = node_id.lower()
+        confidence = float(data.get("confidence", 0.0))
+        inference_time_ms = float(data.get("inference_time_ms", 0.0))
+        cpu_usage_pct = _cpu_usage_pct(data)
+        ram_usage_mb = float(data.get("ram_usage_mb", 0.0))
+        ram_usage_pct = _ram_usage_pct(data)
+        cpu_cores = int(data.get("cpu_cores", 0) or 0)
+        ram_capacity_mb = float(data.get("ram_capacity_mb", 0.0))
+
+        flat[f"{prefix}_prediction_class"] = _prediction_class(data)
+        flat[f"{prefix}_confidence"] = confidence
+        flat[f"{prefix}_inference_time_ms"] = inference_time_ms
+        flat[f"{prefix}_cpu_usage_pct"] = cpu_usage_pct
+        flat[f"{prefix}_ram_usage_mb"] = ram_usage_mb
+        flat[f"{prefix}_ram_usage_pct"] = ram_usage_pct
+        flat[f"{prefix}_cpu_cores"] = cpu_cores
+        flat[f"{prefix}_ram_capacity_mb"] = ram_capacity_mb
+        # Integer telemetry mirrors for widgets that do not handle floats reliably.
+        flat[f"{prefix}_confidence_x100"] = _scaled_int(confidence)
+        flat[f"{prefix}_inference_time_ms_x100"] = _scaled_int(inference_time_ms)
+        flat[f"{prefix}_cpu_usage_pct_x100"] = _scaled_int(cpu_usage_pct)
+        flat[f"{prefix}_ram_usage_mb_x100"] = _scaled_int(ram_usage_mb)
+        flat[f"{prefix}_ram_usage_pct_x100"] = _scaled_int(ram_usage_pct)
+        flat[f"{prefix}_ram_capacity_mb_x100"] = _scaled_int(ram_capacity_mb)
+        flat[f"{prefix}_tech_id"] = str(data.get("tech_id", ""))
+    return flat
 
 def wait_for_predictions(specimen_id):
     """Wait for all nodes to output their prediction for a given specimen."""
@@ -101,15 +143,22 @@ def solve_collective(specimen_id):
             client = mqtt.Client()
             client.username_pw_set(mqtt_token)
             client.connect(mqtt_host, 1883, 60)
+            client.loop_start()
             
             payload = {
                 "collective_class": int(final_class),
                 "collective_confidence": float(final_confidence),
+                "collective_confidence_x100": _scaled_int(final_confidence),
                 "consensus_achieved": len(set(_prediction_class(n) for n in node_data.values())) == 1,
                 "revalidation_triggered": validation_needed,
-                "specimen_id": specimen_id
+                "specimen_id": specimen_id,
+                # Full VM details for drill-down from a single telemetry stream.
+                "nodes_payload": json.dumps(node_data),
             }
-            client.publish("v1/devices/me/telemetry", json.dumps(payload))
+            payload.update(_flatten_node_payload(node_data))
+            msg_info = client.publish("v1/devices/me/telemetry", json.dumps(payload), qos=1)
+            msg_info.wait_for_publish(timeout=5)
+            client.loop_stop()
             client.disconnect()
             print(f"[Aggregator] MQTT telemetry sent successfully")
         except Exception as e:

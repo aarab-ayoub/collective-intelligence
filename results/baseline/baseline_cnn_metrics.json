@@ -64,7 +64,7 @@
     ]
   ],
   "model_size_mb": 0.3166465759277344,
-  "avg_inference_time_ms": 0.01714360076757147,
+  "avg_inference_time_ms": 0.01743214987171903,
   "history": [
     {
       "epoch": 1,

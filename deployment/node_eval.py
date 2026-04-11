@@ -30,6 +30,11 @@ TECHNIQUE_LABELS = {
 
 # MIT-BIH class labels (default). Can be overridden via CLASS_LABELS env var.
 DEFAULT_CLASS_LABELS = ["N", "S", "V", "F", "Q"]
+VM_TIER_PROFILES = {
+    "VM1": {"cpu_cores": 1, "ram_capacity_mb": 500.0},
+    "VM2": {"cpu_cores": 2, "ram_capacity_mb": 1024.0},
+    "VM3": {"cpu_cores": 2, "ram_capacity_mb": 2048.0},
+}
 
 
 def _get_class_labels():
@@ -49,6 +54,16 @@ def _prediction_label(pred_idx, labels):
 def _patient_id(specimen_id):
     year = datetime.now(timezone.utc).year
     return f"P-{year}-{specimen_id:03d}"
+
+
+def _cpu_usage_from_delta(start_times, end_times, wall_seconds, cpu_cores):
+    cpu_seconds = (end_times.user - start_times.user) + (end_times.system - start_times.system)
+    denom = max(wall_seconds * cpu_cores, 1e-9)
+    return round((cpu_seconds / denom) * 100.0, 2)
+
+
+def _vm_profile(vm_id):
+    return VM_TIER_PROFILES.get(vm_id, {"cpu_cores": os.cpu_count() or 1, "ram_capacity_mb": None})
 
 def measure_resources(interval=0.1):
     process = psutil.Process(os.getpid())
@@ -150,6 +165,19 @@ def main():
 
     model.eval()
 
+    # Static VM profile based on the PDF table.
+    vm_profile = _vm_profile(vm_id)
+    cpu_cores = int(vm_profile["cpu_cores"])
+    cpu_capacity_pct = 100.0
+    ram_capacity_mb = float(vm_profile["ram_capacity_mb"] or round(psutil.virtual_memory().total / (1024 * 1024), 2))
+    disk_info = psutil.disk_usage("/")
+    storage_capacity_gb = round(disk_info.total / (1024**3), 2)
+    storage_free_gb = round(disk_info.free / (1024**3), 2)
+    storage_used_pct = round(disk_info.percent, 2)
+    model_size_mb = None
+    if model_path and os.path.exists(model_path):
+        model_size_mb = round(os.path.getsize(model_path) / (1024 * 1024), 4)
+
     # 1. Measure Latency (10 inferences)
     print(f"[{vm_id}] Running 10 inferences for latency measurement...")
     latencies = []
@@ -167,15 +195,17 @@ def main():
     for i, (bx, _) in enumerate(test_loader):
         if i >= 10: break
         
+        cpu_before = process.cpu_times()
         t0 = time.perf_counter()
         with torch.no_grad():
             _ = model(bx)
-        dt = (time.perf_counter() - t0) * 1000 # ms
+        dt_seconds = time.perf_counter() - t0
+        dt = dt_seconds * 1000 # ms
+        cpu_after = process.cpu_times()
         latencies.append(dt)
         
-        # Sample CPU/RAM (normalize by core count for true 0-100%)
-        num_cpus = os.cpu_count() or 1
-        cpu_usages.append(process.cpu_percent() / num_cpus)
+        # Sample CPU/RAM using CPU time delta during the inference window.
+        cpu_usages.append(_cpu_usage_from_delta(cpu_before, cpu_after, dt_seconds, cpu_cores))
         mem_usages.append(process.memory_info().rss / (1024 * 1024))
 
     avg_lat = np.mean(latencies)
@@ -201,6 +231,7 @@ def main():
     collective_mode = os.getenv("COLLECTIVE_MODE", "false").lower() == "true"
     if collective_mode:
         num_samples = int(os.getenv("NUM_SAMPLES", "10"))
+        send_node_telemetry = os.getenv("SEND_NODE_TELEMETRY", "false").lower() == "true"
         save_dir = os.getenv("SHARED_DIR", "/app/results/phase5")
         os.makedirs(save_dir, exist_ok=True)
         print(f"[{vm_id}] COLLECTIVE MODE: Processing {num_samples} samples...")
@@ -212,9 +243,12 @@ def main():
                     if count >= num_samples: break
                     sample = bx[idx:idx+1]
 
+                    cpu_before = process.cpu_times()
                     t0 = time.perf_counter()
                     outputs = model(sample)
-                    inference_ms = (time.perf_counter() - t0) * 1000.0
+                    inference_seconds = time.perf_counter() - t0
+                    inference_ms = inference_seconds * 1000.0
+                    cpu_after = process.cpu_times()
                     probs = torch.softmax(outputs, dim=1)
                     conf, pred = torch.max(probs, dim=1)
                     pred_idx = int(pred.item())
@@ -222,11 +256,12 @@ def main():
                     technique_label = TECHNIQUE_LABELS.get(tech_id, tech_name or tech_id)
                     timestamp_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
                     
-                    num_cpus = os.cpu_count() or 1
-                    process = psutil.Process(os.getpid())
-                    cpu_usage_pct = round(process.cpu_percent(interval=None) / num_cpus, 2)
+                    cpu_usage_pct = _cpu_usage_from_delta(cpu_before, cpu_after, inference_seconds, cpu_cores)
                     ram_usage_mb = round(process.memory_info().rss / (1024 * 1024), 2)
                     ram_usage_pct = round(psutil.virtual_memory().percent, 2)
+                    ram_process_usage_pct = round((ram_usage_mb / ram_capacity_mb) * 100.0, 4) if ram_capacity_mb > 0 else 0.0
+                    cpu_available_pct = round(max(0.0, cpu_capacity_pct - cpu_usage_pct), 2)
+                    ram_free_mb = round(max(0.0, ram_capacity_mb - ram_usage_mb), 2)
                     res = {
                         "vm_id": vm_id,
                         "timestamp": timestamp_iso,
@@ -235,17 +270,26 @@ def main():
                         "prediction_class": pred_idx,
                         "confidence": float(conf.item()),
                         "inference_time_ms": float(inference_ms),
+                        # Dynamic usage telemetry
                         "cpu_usage_pct": cpu_usage_pct,
                         "ram_usage_mb": ram_usage_mb,
+                        "cpu_available_pct": cpu_available_pct,
+                        "ram_free_mb": ram_free_mb,
+                        "ram_process_usage_pct": ram_process_usage_pct,
+                        # Static capacity telemetry
+                        "cpu_capacity_pct": cpu_capacity_pct,
+                        "cpu_cores": cpu_cores,
+                        "ram_capacity_mb": ram_capacity_mb,
+                        "storage_capacity_gb": storage_capacity_gb,
+                        "storage_free_gb": storage_free_gb,
+                        "storage_used_pct": storage_used_pct,
+                        "model_size_mb": model_size_mb,
                         "patient_id": _patient_id(count),
                         # Backward compatibility with existing aggregator/report code.
                         "accuracy": 1.0 if pred_idx == by[idx].item() else 0.0,
-                        "cpu_percent": cpu_usage_pct,
-                        "ram_percent": ram_usage_pct,
                         "specimen_id": count,
                         "tech_id": tech_id
                     }
-                    
                     # 1. Save to shared volume
                     with open(os.path.join(save_dir, f"specimen_{count}_{vm_id}_pred.json"), 'w') as f:
                         json.dump(res, f)
@@ -253,12 +297,13 @@ def main():
                     # 2. MQTT Telemetry (Supervision Phase 6)
                     mqtt_host = os.getenv("MQTT_HOST")
                     mqtt_token = os.getenv("MQTT_TOKEN")
-                    if mqtt_host and mqtt_token:
+                    if send_node_telemetry and mqtt_host and mqtt_token:
                         try:
                             import paho.mqtt.client as mqtt
                             client = mqtt.Client()
                             client.username_pw_set(mqtt_token)
                             client.connect(mqtt_host, 1883, 60)
+                            client.loop_start()
                             
                             payload = {
                                 "vm_id": vm_id,
@@ -270,14 +315,23 @@ def main():
                                 "inference_time_ms": float(inference_ms),
                                 "cpu_usage_pct": cpu_usage_pct,
                                 "ram_usage_mb": ram_usage_mb,
+                                "cpu_available_pct": cpu_available_pct,
+                                "ram_free_mb": ram_free_mb,
+                                "ram_process_usage_pct": ram_process_usage_pct,
+                                "cpu_capacity_pct": cpu_capacity_pct,
+                                "cpu_cores": cpu_cores,
+                                "ram_capacity_mb": ram_capacity_mb,
+                                "storage_capacity_gb": storage_capacity_gb,
+                                "storage_free_gb": storage_free_gb,
+                                "storage_used_pct": storage_used_pct,
+                                "model_size_mb": model_size_mb,
                                 "patient_id": res["patient_id"],
-                                # Keep legacy keys to avoid breaking dashboards/rules.
-                                "cpu_percent": res["cpu_percent"],
-                                "ram_percent": res["ram_percent"],
                                 "specimen_id": count,
                                 "tech_id": tech_id
                             }
-                            client.publish("v1/devices/me/telemetry", json.dumps(payload))
+                            msg_info = client.publish("v1/devices/me/telemetry", json.dumps(payload), qos=1)
+                            msg_info.wait_for_publish(timeout=5)
+                            client.loop_stop()
                             client.disconnect()
                         except Exception as e:
                             print(f"[{vm_id}] MQTT Error: {e}")
@@ -297,6 +351,13 @@ def main():
         "std_latency_ms": float(std_lat),
         "avg_cpu_percent": float(avg_cpu),
         "avg_ram_mb": float(avg_mem),
+        "cpu_capacity_pct": cpu_capacity_pct,
+        "cpu_cores": cpu_cores,
+        "ram_capacity_mb": ram_capacity_mb,
+        "storage_capacity_gb": storage_capacity_gb,
+        "storage_free_gb": storage_free_gb,
+        "storage_used_pct": storage_used_pct,
+        "model_size_mb": model_size_mb,
         "model_path": model_path
     }
 

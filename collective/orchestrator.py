@@ -47,6 +47,7 @@ def main():
             f"-e TECH_ID={info['id']} "
             f"-e COLLECTIVE_MODE=true "
             f"-e NUM_SAMPLES=10 "
+            f"-e SEND_NODE_TELEMETRY=false "
             f"-e MQTT_HOST=thingsboard "
             f"-e MQTT_TOKEN={MQTT_TOKENS[vm_id]} "
             f"{vm_id}"
