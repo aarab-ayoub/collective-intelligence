@@ -56,10 +56,8 @@ def _patient_id(specimen_id):
     return f"P-{year}-{specimen_id:03d}"
 
 
-def _cpu_usage_from_delta(start_times, end_times, wall_seconds, cpu_cores):
-    cpu_seconds = (end_times.user - start_times.user) + (end_times.system - start_times.system)
-    denom = max(wall_seconds * cpu_cores, 1e-9)
-    return round((cpu_seconds / denom) * 100.0, 2)
+def _clamp_pct(value):
+    return round(max(0.0, min(float(value), 100.0)), 2)
 
 
 def _vm_profile(vm_id):
@@ -189,23 +187,22 @@ def main():
 
     # Measurement loop
     process = psutil.Process(os.getpid())
+    process.cpu_percent(None)
     cpu_usages = []
     mem_usages = []
     
     for i, (bx, _) in enumerate(test_loader):
         if i >= 10: break
         
-        cpu_before = process.cpu_times()
         t0 = time.perf_counter()
         with torch.no_grad():
             _ = model(bx)
         dt_seconds = time.perf_counter() - t0
         dt = dt_seconds * 1000 # ms
-        cpu_after = process.cpu_times()
         latencies.append(dt)
         
-        # Sample CPU/RAM using CPU time delta during the inference window.
-        cpu_usages.append(_cpu_usage_from_delta(cpu_before, cpu_after, dt_seconds, cpu_cores))
+        # Sample CPU/RAM using psutil's process percentage, normalized to the VM tier.
+        cpu_usages.append(_clamp_pct(process.cpu_percent(None) / max(cpu_cores, 1)))
         mem_usages.append(process.memory_info().rss / (1024 * 1024))
 
     avg_lat = np.mean(latencies)
@@ -237,18 +234,17 @@ def main():
         print(f"[{vm_id}] COLLECTIVE MODE: Processing {num_samples} samples...")
         
         count = 0
+        process.cpu_percent(None)
         with torch.no_grad():
             for bx, by in test_loader:
                 for idx in range(len(bx)):
                     if count >= num_samples: break
                     sample = bx[idx:idx+1]
 
-                    cpu_before = process.cpu_times()
                     t0 = time.perf_counter()
                     outputs = model(sample)
                     inference_seconds = time.perf_counter() - t0
                     inference_ms = inference_seconds * 1000.0
-                    cpu_after = process.cpu_times()
                     probs = torch.softmax(outputs, dim=1)
                     conf, pred = torch.max(probs, dim=1)
                     pred_idx = int(pred.item())
@@ -256,10 +252,10 @@ def main():
                     technique_label = TECHNIQUE_LABELS.get(tech_id, tech_name or tech_id)
                     timestamp_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
                     
-                    cpu_usage_pct = _cpu_usage_from_delta(cpu_before, cpu_after, inference_seconds, cpu_cores)
+                    cpu_usage_pct = _clamp_pct(process.cpu_percent(None) / max(cpu_cores, 1))
                     ram_usage_mb = round(process.memory_info().rss / (1024 * 1024), 2)
-                    ram_usage_pct = round(psutil.virtual_memory().percent, 2)
-                    ram_process_usage_pct = round((ram_usage_mb / ram_capacity_mb) * 100.0, 4) if ram_capacity_mb > 0 else 0.0
+                    ram_usage_pct = _clamp_pct(psutil.virtual_memory().percent)
+                    ram_process_usage_pct = _clamp_pct((ram_usage_mb / ram_capacity_mb) * 100.0) if ram_capacity_mb > 0 else 0.0
                     cpu_available_pct = round(max(0.0, cpu_capacity_pct - cpu_usage_pct), 2)
                     ram_free_mb = round(max(0.0, ram_capacity_mb - ram_usage_mb), 2)
                     res = {
@@ -290,6 +286,19 @@ def main():
                         "specimen_id": count,
                         "tech_id": tech_id
                     }
+                    # Alert flags for supervision/dashboard
+                    overloaded_cpu = cpu_usage_pct > 85
+                    overloaded_ram = ram_process_usage_pct > 90
+                    res["overloaded"] = bool(overloaded_cpu or overloaded_ram)
+                    if res["overloaded"]:
+                        msgs = []
+                        if overloaded_cpu:
+                            msgs.append(f"CPU={cpu_usage_pct}%")
+                        if overloaded_ram:
+                            msgs.append(f"RAM={ram_process_usage_pct}%")
+                        res["alert_msg"] = "; ".join(msgs)
+                    else:
+                        res["alert_msg"] = ""
                     # 1. Save to shared volume
                     with open(os.path.join(save_dir, f"specimen_{count}_{vm_id}_pred.json"), 'w') as f:
                         json.dump(res, f)

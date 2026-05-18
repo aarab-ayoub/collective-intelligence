@@ -8,7 +8,7 @@ services:
     container_name: vm1
     volumes:
       - ..:/app
-      - ../../mitbih:/mitbih
+      - ../../zip/mitbih:/mitbih
     deploy:
       resources:
         limits:
@@ -25,7 +25,7 @@ services:
     container_name: vm2
     volumes:
       - ..:/app
-      - ../../mitbih:/mitbih
+      - ../../zip/mitbih:/mitbih
     deploy:
       resources:
         limits:
@@ -42,7 +42,7 @@ services:
     container_name: vm3
     volumes:
       - ..:/app
-      - ../../mitbih:/mitbih
+      - ../../zip/mitbih:/mitbih
     deploy:
       resources:
         limits:

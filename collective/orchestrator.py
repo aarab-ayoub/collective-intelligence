@@ -12,10 +12,10 @@ CHAMPIONS = {
 
 # MQTT Tokens from thingsboard
 MQTT_TOKENS = {
-    "vm1": "hl2C5Ocv4zuHVMIZgsCK",
-    "vm2": "j02rXzN2GWMMD8SxWVxf",
-    "vm3": "FJs28cvft4hHPuVaASpV",
-    "aggregator": "BPO8AoEhK8HApMiEgfCq"
+    "vm1": "24I0bz103fw2rt8X6W7z",
+    "vm2": "miKQqtXvO6x7eysL3w4L",
+    "vm3": "lgDfgBFuSKR7679PBhIo",
+    "aggregator": "6XIKx1kXMSsCIFkXWJwg"
 }
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -39,15 +39,15 @@ def main():
     
     # 2. Run the 3 champion nodes in COLLECTIVE mode
     # We use 'run' instead of 'up' to control environment variables easily
-    processes = []
     for vm_id, info in CHAMPIONS.items():
         cmd = (
-            f"docker compose -f {COMPOSE_FILE} run -d "
+            f"docker compose -f {COMPOSE_FILE} run --rm -d "
             f"-e MODEL_PATH={info['path']} "
             f"-e TECH_ID={info['id']} "
+            f"-e SHARED_DIR=/app/results/phase5 "
             f"-e COLLECTIVE_MODE=true "
             f"-e NUM_SAMPLES=10 "
-            f"-e SEND_NODE_TELEMETRY=false "
+            f"-e SEND_NODE_TELEMETRY=true "
             f"-e MQTT_HOST=thingsboard "
             f"-e MQTT_TOKEN={MQTT_TOKENS[vm_id]} "
             f"{vm_id}"
@@ -55,10 +55,14 @@ def main():
         print(f"Starting {vm_id} with {info['id']}...")
         run_cmd(cmd)
 
+    # Give nodes a short moment to initialize and write their first outputs
+    time.sleep(2)
+
     # 3. Start the Aggregator
     print("Starting Aggregator...")
     agg_cmd = (
-        f"docker compose -f {COMPOSE_FILE} run "
+        f"docker compose -f {COMPOSE_FILE} run --rm "
+        f"-e SHARED_DIR=/app/results/phase5 "
         f"-e MQTT_HOST=thingsboard "
         f"-e MQTT_TOKEN={MQTT_TOKENS['aggregator']} "
         f"aggregator"
