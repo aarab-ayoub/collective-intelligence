@@ -1,0 +1,15 @@
+# Core deep learning
+torch>=2.0
+
+# Data & numerics
+numpy
+pandas
+scipy
+scikit-learn
+
+# Visualization
+matplotlib
+
+# Edge node telemetry & resource monitoring
+psutil
+paho-mqtt
